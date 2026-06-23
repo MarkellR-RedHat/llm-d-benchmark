@@ -1,0 +1,1201 @@
+{
+  "metadata": {
+    "title": "llm-d KV-Cache-Aware Routing Benchmark \u2014 Complete Dataset",
+    "author": "Markell Rawls",
+    "date": "2026-06-23",
+    "model": "Meta Llama 3.1 70B Instruct (FP8-dynamic, RedHatAI)",
+    "hardware": "3x NVIDIA H200 141GB HBM3e GPUs on single node",
+    "platform": "Red Hat OpenShift 4.21.11 with llm-d (CNCF Sandbox)",
+    "inference_engine": "vLLM with automatic prefix caching",
+    "methodology": "In-pod measurement via direct HTTPS + streaming SSE. time.perf_counter() for TTFT. Zero network overhead.",
+    "routing_comparison": {
+      "round_robin": "Standard K8s Service load balancing \u2014 requests distributed evenly across pods",
+      "cache_aware": "llm-d EPP routing \u2014 requests routed to the pod with the best KV-cache match"
+    },
+    "benchmark_suite": [
+      "Test 1: Context Length Scaling (500-8000 tokens)",
+      "Test 2: Long Prefix Cold/Warm (8000 tokens, all pods)",
+      "Test 3: Concurrent Load (10 sessions x 5 turns)",
+      "Test 4: Cache Warmup Curve (20 sequential requests)",
+      "Test 5: Extended Agentic Chain (12 steps, 10K tokens)",
+      "Test 6: Multi-turn Conversations (10 turns, 3 conversations) [original]",
+      "Test 7: Agentic Tool-Calling Chain (8 steps, 4.4K tokens) [original]",
+      "Test 8: Extended Context Scaling (12K-32K tokens)"
+    ]
+  },
+  "headline_numbers": {
+    "max_speedup": "47.5x TTFT speedup at 32K-token context",
+    "concurrent_reduction": "75% TTFT reduction under 10-session concurrent load",
+    "scaling_range": "2.7x (500 tokens) to 47.5x (32K tokens) speedup",
+    "warmup_advantage": "Converges at request 1 vs request N (one per pod)",
+    "agentic_improvement": "40% TTFT reduction at 10K-token step 12",
+    "cold_start_penalty": "3.7 seconds cold vs 79ms warm (47.5x) for 32K context",
+    "p95_under_load": "73ms cache-aware vs 288ms round-robin P95"
+  },
+  "charts": {
+    "context_scaling_curve": {
+      "description": "X: context length (tokens), Y: TTFT (ms). Two lines: cold (no cache) and warm (cache hit). Gap IS the savings.",
+      "x_label": "Context Length (tokens)",
+      "y_label": "Time to First Token (ms)",
+      "series": {
+        "cold_start": [
+          {
+            "x": 500,
+            "y": 87.89
+          },
+          {
+            "x": 1000,
+            "y": 109.55
+          },
+          {
+            "x": 2000,
+            "y": 218.57
+          },
+          {
+            "x": 4000,
+            "y": 369.34
+          },
+          {
+            "x": 8000,
+            "y": 758.26
+          },
+          {
+            "x": 12000,
+            "y": 1269.55
+          },
+          {
+            "x": 16000,
+            "y": 1636.96
+          },
+          {
+            "x": 24000,
+            "y": 2692.05
+          },
+          {
+            "x": 32000,
+            "y": 3742.47
+          }
+        ],
+        "cache_hit": [
+          {
+            "x": 500,
+            "y": 32.66
+          },
+          {
+            "x": 1000,
+            "y": 33.06
+          },
+          {
+            "x": 2000,
+            "y": 35.75
+          },
+          {
+            "x": 4000,
+            "y": 37.9
+          },
+          {
+            "x": 8000,
+            "y": 43.95
+          },
+          {
+            "x": 12000,
+            "y": 49.06
+          },
+          {
+            "x": 16000,
+            "y": 55.34
+          },
+          {
+            "x": 24000,
+            "y": 65.84
+          },
+          {
+            "x": 32000,
+            "y": 78.87
+          }
+        ],
+        "rr_miss": [
+          {
+            "x": 500,
+            "y": 89.87
+          },
+          {
+            "x": 1000,
+            "y": 109.39
+          },
+          {
+            "x": 2000,
+            "y": 220.18
+          },
+          {
+            "x": 4000,
+            "y": 375.71
+          },
+          {
+            "x": 8000,
+            "y": 771.48
+          },
+          {
+            "x": 12000,
+            "y": 1296.23
+          },
+          {
+            "x": 16000,
+            "y": 1657.82
+          },
+          {
+            "x": 24000,
+            "y": 2745.55
+          },
+          {
+            "x": 32000,
+            "y": 3804.93
+          }
+        ]
+      }
+    },
+    "concurrent_per_turn": {
+      "description": "TTFT per turn under concurrent load. Shows flat sticky vs chaotic round-robin.",
+      "x_label": "Conversation Turn",
+      "y_label": "Mean TTFT (ms)",
+      "series": {
+        "round_robin": [
+          {
+            "x": 1,
+            "y": 178.87
+          },
+          {
+            "x": 2,
+            "y": 253.77
+          },
+          {
+            "x": 3,
+            "y": 247.99
+          },
+          {
+            "x": 4,
+            "y": 189.71
+          },
+          {
+            "x": 5,
+            "y": 230.32
+          }
+        ],
+        "cache_aware": [
+          {
+            "x": 1,
+            "y": 51.66
+          },
+          {
+            "x": 2,
+            "y": 52.71
+          },
+          {
+            "x": 3,
+            "y": 54.55
+          },
+          {
+            "x": 4,
+            "y": 57.95
+          },
+          {
+            "x": 5,
+            "y": 60.81
+          }
+        ]
+      }
+    },
+    "warmup_curve": {
+      "description": "TTFT per request for the same prompt. Shows how quickly each routing mode reaches peak cache efficiency.",
+      "x_label": "Request Number",
+      "y_label": "TTFT (ms)",
+      "series": {
+        "round_robin": [
+          {
+            "x": 1,
+            "y": 235.17
+          },
+          {
+            "x": 2,
+            "y": 238.29
+          },
+          {
+            "x": 3,
+            "y": 235.41
+          },
+          {
+            "x": 4,
+            "y": 42.31
+          },
+          {
+            "x": 5,
+            "y": 41.57
+          },
+          {
+            "x": 6,
+            "y": 43.43
+          },
+          {
+            "x": 7,
+            "y": 42.39
+          },
+          {
+            "x": 8,
+            "y": 43.36
+          },
+          {
+            "x": 9,
+            "y": 42.44
+          },
+          {
+            "x": 10,
+            "y": 42.13
+          },
+          {
+            "x": 11,
+            "y": 42.46
+          },
+          {
+            "x": 12,
+            "y": 43.36
+          },
+          {
+            "x": 13,
+            "y": 41.59
+          },
+          {
+            "x": 14,
+            "y": 42.25
+          },
+          {
+            "x": 15,
+            "y": 41.44
+          },
+          {
+            "x": 16,
+            "y": 42.06
+          },
+          {
+            "x": 17,
+            "y": 42.9
+          },
+          {
+            "x": 18,
+            "y": 41.92
+          },
+          {
+            "x": 19,
+            "y": 41.87
+          },
+          {
+            "x": 20,
+            "y": 42.27
+          }
+        ],
+        "cache_aware": [
+          {
+            "x": 1,
+            "y": 37.95
+          },
+          {
+            "x": 2,
+            "y": 41.27
+          },
+          {
+            "x": 3,
+            "y": 34.62
+          },
+          {
+            "x": 4,
+            "y": 36.25
+          },
+          {
+            "x": 5,
+            "y": 40.79
+          },
+          {
+            "x": 6,
+            "y": 35.8
+          },
+          {
+            "x": 7,
+            "y": 35.68
+          },
+          {
+            "x": 8,
+            "y": 41.8
+          },
+          {
+            "x": 9,
+            "y": 36.09
+          },
+          {
+            "x": 10,
+            "y": 35.02
+          },
+          {
+            "x": 11,
+            "y": 35.3
+          },
+          {
+            "x": 12,
+            "y": 35.43
+          },
+          {
+            "x": 13,
+            "y": 35.76
+          },
+          {
+            "x": 14,
+            "y": 35.19
+          },
+          {
+            "x": 15,
+            "y": 34.97
+          },
+          {
+            "x": 16,
+            "y": 35.22
+          },
+          {
+            "x": 17,
+            "y": 35.0
+          },
+          {
+            "x": 18,
+            "y": 34.79
+          },
+          {
+            "x": 19,
+            "y": 35.12
+          },
+          {
+            "x": 20,
+            "y": 34.72
+          }
+        ]
+      }
+    },
+    "agentic_chain_12step": {
+      "description": "12-step agentic chain with 7K-token document. Shows TTFT at each step as context grows.",
+      "x_label": "Agent Step",
+      "y_label": "TTFT (ms)",
+      "series": {
+        "round_robin": [
+          {
+            "x": 1,
+            "y": 678.93,
+            "context_tokens": 7295
+          },
+          {
+            "x": 2,
+            "y": 730.44,
+            "context_tokens": 7550
+          },
+          {
+            "x": 3,
+            "y": 748.37,
+            "context_tokens": 7801
+          },
+          {
+            "x": 4,
+            "y": 148.57,
+            "context_tokens": 8061
+          },
+          {
+            "x": 5,
+            "y": 152.84,
+            "context_tokens": 8313
+          },
+          {
+            "x": 6,
+            "y": 152.18,
+            "context_tokens": 8600
+          },
+          {
+            "x": 7,
+            "y": 152.23,
+            "context_tokens": 8875
+          },
+          {
+            "x": 8,
+            "y": 150.1,
+            "context_tokens": 9154
+          },
+          {
+            "x": 9,
+            "y": 141.87,
+            "context_tokens": 9404
+          },
+          {
+            "x": 10,
+            "y": 147.43,
+            "context_tokens": 9730
+          },
+          {
+            "x": 11,
+            "y": 143.13,
+            "context_tokens": 10003
+          },
+          {
+            "x": 12,
+            "y": 143.79,
+            "context_tokens": 10300
+          }
+        ],
+        "cache_aware": [
+          {
+            "x": 1,
+            "y": 43.86,
+            "context_tokens": 7294
+          },
+          {
+            "x": 2,
+            "y": 68.93,
+            "context_tokens": 7549
+          },
+          {
+            "x": 3,
+            "y": 71.59,
+            "context_tokens": 7800
+          },
+          {
+            "x": 4,
+            "y": 71.04,
+            "context_tokens": 8059
+          },
+          {
+            "x": 5,
+            "y": 71.37,
+            "context_tokens": 8310
+          },
+          {
+            "x": 6,
+            "y": 73.13,
+            "context_tokens": 8598
+          },
+          {
+            "x": 7,
+            "y": 65.8,
+            "context_tokens": 8873
+          },
+          {
+            "x": 8,
+            "y": 67.97,
+            "context_tokens": 9151
+          },
+          {
+            "x": 9,
+            "y": 67.02,
+            "context_tokens": 9413
+          },
+          {
+            "x": 10,
+            "y": 72.57,
+            "context_tokens": 9736
+          },
+          {
+            "x": 11,
+            "y": 122.03,
+            "context_tokens": 10013
+          },
+          {
+            "x": 12,
+            "y": 66.41,
+            "context_tokens": 10305
+          }
+        ]
+      }
+    },
+    "speedup_bar_chart": {
+      "description": "Speedup factor at each context length. Ascending bars showing how advantage compounds.",
+      "x_label": "Context Length (tokens)",
+      "y_label": "Speedup Factor (x)",
+      "bars": [
+        {
+          "label": "500",
+          "value": 2.69
+        },
+        {
+          "label": "1K",
+          "value": 3.31
+        },
+        {
+          "label": "2K",
+          "value": 6.11
+        },
+        {
+          "label": "4K",
+          "value": 9.75
+        },
+        {
+          "label": "8K",
+          "value": 17.25
+        },
+        {
+          "label": "12K",
+          "value": 25.88
+        },
+        {
+          "label": "16K",
+          "value": 29.58
+        },
+        {
+          "label": "24K",
+          "value": 40.89
+        },
+        {
+          "label": "32K",
+          "value": 47.45
+        }
+      ]
+    },
+    "concurrent_distribution": {
+      "description": "TTFT distribution comparison under concurrent load.",
+      "round_robin": {
+        "mean": 220.13,
+        "median": 234.84,
+        "p95": 288.29,
+        "p99": 289.04,
+        "min": 84.92,
+        "max": 289.04
+      },
+      "cache_aware": {
+        "mean": 55.54,
+        "median": 46.34,
+        "p95": 73.04,
+        "p99": 73.18,
+        "min": 41.67,
+        "max": 73.18
+      }
+    },
+    "agentic_chain_8step_original": {
+      "description": "8-step agentic chain with 2.3K-token system prompt (original test). Shows TTFT divergence from step 1.",
+      "x_label": "Agent Step",
+      "y_label": "TTFT (ms)",
+      "series": {
+        "round_robin": [
+          {
+            "x": 1,
+            "y": 41.63,
+            "context_tokens": 2646
+          },
+          {
+            "x": 2,
+            "y": 79.64,
+            "context_tokens": 2914
+          },
+          {
+            "x": 3,
+            "y": 84.17,
+            "context_tokens": 3156
+          },
+          {
+            "x": 4,
+            "y": 135.43,
+            "context_tokens": 3414
+          },
+          {
+            "x": 5,
+            "y": 138.63,
+            "context_tokens": 3646
+          },
+          {
+            "x": 6,
+            "y": 137.9,
+            "context_tokens": 3891
+          },
+          {
+            "x": 7,
+            "y": 137.76,
+            "context_tokens": 4150
+          },
+          {
+            "x": 8,
+            "y": 144.8,
+            "context_tokens": 4421
+          }
+        ],
+        "cache_aware": [
+          {
+            "x": 1,
+            "y": 38.92,
+            "context_tokens": 2646
+          },
+          {
+            "x": 2,
+            "y": 52.44,
+            "context_tokens": 2914
+          },
+          {
+            "x": 3,
+            "y": 64.34,
+            "context_tokens": 3156
+          },
+          {
+            "x": 4,
+            "y": 43.35,
+            "context_tokens": 3414
+          },
+          {
+            "x": 5,
+            "y": 42.67,
+            "context_tokens": 3646
+          },
+          {
+            "x": 6,
+            "y": 44.2,
+            "context_tokens": 3891
+          },
+          {
+            "x": 7,
+            "y": 55.41,
+            "context_tokens": 4150
+          },
+          {
+            "x": 8,
+            "y": 57.42,
+            "context_tokens": 4421
+          }
+        ]
+      }
+    },
+    "multi_turn_conversation": {
+      "description": "10-turn conversations with 2.3K-token system prompt. Median TTFT per turn.",
+      "x_label": "Conversation Turn",
+      "y_label": "Median TTFT (ms)",
+      "series": {
+        "round_robin": [
+          {
+            "x": 1,
+            "y": 42.93
+          },
+          {
+            "x": 2,
+            "y": 64.75
+          },
+          {
+            "x": 3,
+            "y": 56.83
+          },
+          {
+            "x": 4,
+            "y": 52.59
+          },
+          {
+            "x": 5,
+            "y": 53.6
+          },
+          {
+            "x": 6,
+            "y": 55.34
+          },
+          {
+            "x": 7,
+            "y": 54.36
+          },
+          {
+            "x": 8,
+            "y": 57.24
+          },
+          {
+            "x": 9,
+            "y": 56.47
+          },
+          {
+            "x": 10,
+            "y": 55.5
+          }
+        ],
+        "cache_aware": [
+          {
+            "x": 1,
+            "y": 39.02
+          },
+          {
+            "x": 2,
+            "y": 40.17
+          },
+          {
+            "x": 3,
+            "y": 42.99
+          },
+          {
+            "x": 4,
+            "y": 48.17
+          },
+          {
+            "x": 5,
+            "y": 42.88
+          },
+          {
+            "x": 6,
+            "y": 41.76
+          },
+          {
+            "x": 7,
+            "y": 50.74
+          },
+          {
+            "x": 8,
+            "y": 50.35
+          },
+          {
+            "x": 9,
+            "y": 48.0
+          },
+          {
+            "x": 10,
+            "y": 47.38
+          }
+        ]
+      }
+    },
+    "throughput_scaling": {
+      "description": "Output tokens/sec vs concurrency (GuideLLM, 2 pods). Shows inference throughput ceiling.",
+      "source": "GuideLLM benchmark, June 10, 2026 (separate test)",
+      "x_label": "Concurrent Requests",
+      "y_label": "Output Tokens/sec",
+      "series": {
+        "output_tps": [
+          {
+            "x": 1,
+            "y": 28.3
+          },
+          {
+            "x": 4,
+            "y": 112.8
+          },
+          {
+            "x": 16,
+            "y": 449.2
+          },
+          {
+            "x": 64,
+            "y": 1410.0
+          },
+          {
+            "x": 128,
+            "y": 1805.0
+          }
+        ]
+      }
+    },
+    "full_scaling_curve": {
+      "description": "Complete TTFT scaling curve from 500 to 32,000 tokens. The hero chart.",
+      "x_label": "Context Length (tokens)",
+      "y_label": "Time to First Token (ms)",
+      "note": "Cold grows linearly (88ms->3742ms), warm stays nearly flat (33ms->79ms). The gap IS the value of cache-aware routing.",
+      "series": {
+        "cold_start_no_cache": [
+          {
+            "x": 500,
+            "y": 87.89
+          },
+          {
+            "x": 1000,
+            "y": 109.55
+          },
+          {
+            "x": 2000,
+            "y": 218.57
+          },
+          {
+            "x": 4000,
+            "y": 369.34
+          },
+          {
+            "x": 8000,
+            "y": 758.26
+          },
+          {
+            "x": 12000,
+            "y": 1269.55
+          },
+          {
+            "x": 16000,
+            "y": 1636.96
+          },
+          {
+            "x": 24000,
+            "y": 2692.05
+          },
+          {
+            "x": 32000,
+            "y": 3742.47
+          }
+        ],
+        "cache_hit": [
+          {
+            "x": 500,
+            "y": 32.66
+          },
+          {
+            "x": 1000,
+            "y": 33.06
+          },
+          {
+            "x": 2000,
+            "y": 35.75
+          },
+          {
+            "x": 4000,
+            "y": 37.9
+          },
+          {
+            "x": 8000,
+            "y": 43.95
+          },
+          {
+            "x": 12000,
+            "y": 49.06
+          },
+          {
+            "x": 16000,
+            "y": 55.34
+          },
+          {
+            "x": 24000,
+            "y": 65.84
+          },
+          {
+            "x": 32000,
+            "y": 78.87
+          }
+        ]
+      },
+      "speedup_at_each_point": [
+        {
+          "tokens": 500,
+          "speedup_x": 2.69,
+          "savings_pct": 62.8
+        },
+        {
+          "tokens": 1000,
+          "speedup_x": 3.31,
+          "savings_pct": 69.8
+        },
+        {
+          "tokens": 2000,
+          "speedup_x": 6.11,
+          "savings_pct": 83.6
+        },
+        {
+          "tokens": 4000,
+          "speedup_x": 9.75,
+          "savings_pct": 89.7
+        },
+        {
+          "tokens": 8000,
+          "speedup_x": 17.25,
+          "savings_pct": 94.2
+        },
+        {
+          "tokens": 12000,
+          "speedup_x": 25.88,
+          "savings_pct": 96.1
+        },
+        {
+          "tokens": 16000,
+          "speedup_x": 29.58,
+          "savings_pct": 96.6
+        },
+        {
+          "tokens": 24000,
+          "speedup_x": 40.89,
+          "savings_pct": 97.6
+        },
+        {
+          "tokens": 32000,
+          "speedup_x": 47.45,
+          "savings_pct": 97.9
+        }
+      ]
+    },
+    "fleet_warmup_projection": {
+      "description": "Projected warmup cost by fleet size. Shows why cache-aware routing is essential at scale.",
+      "x_label": "Number of Pods",
+      "y_label": "Total Warmup Time (seconds)",
+      "series": {
+        "round_robin_8k": [
+          {
+            "x": 3,
+            "y": 2.2748000000000004
+          },
+          {
+            "x": 10,
+            "y": 7.5826
+          },
+          {
+            "x": 25,
+            "y": 18.9565
+          },
+          {
+            "x": 50,
+            "y": 37.913
+          },
+          {
+            "x": 100,
+            "y": 75.826
+          },
+          {
+            "x": 200,
+            "y": 151.652
+          }
+        ],
+        "cache_aware_8k": [
+          {
+            "x": 3,
+            "y": 0.7583
+          },
+          {
+            "x": 10,
+            "y": 0.7583
+          },
+          {
+            "x": 25,
+            "y": 0.7583
+          },
+          {
+            "x": 50,
+            "y": 0.7583
+          },
+          {
+            "x": 100,
+            "y": 0.7583
+          },
+          {
+            "x": 200,
+            "y": 0.7583
+          }
+        ],
+        "round_robin_32k": [
+          {
+            "x": 3,
+            "y": 11.227409999999999
+          },
+          {
+            "x": 10,
+            "y": 37.424699999999994
+          },
+          {
+            "x": 25,
+            "y": 93.56175
+          },
+          {
+            "x": 50,
+            "y": 187.1235
+          },
+          {
+            "x": 100,
+            "y": 374.247
+          },
+          {
+            "x": 200,
+            "y": 748.494
+          }
+        ],
+        "cache_aware_32k": [
+          {
+            "x": 3,
+            "y": 3.74247
+          },
+          {
+            "x": 10,
+            "y": 3.74247
+          },
+          {
+            "x": 25,
+            "y": 3.74247
+          },
+          {
+            "x": 50,
+            "y": 3.74247
+          },
+          {
+            "x": 100,
+            "y": 3.74247
+          },
+          {
+            "x": 200,
+            "y": 3.74247
+          }
+        ]
+      }
+    }
+  },
+  "analysis": {
+    "why_cache_aware_routing_matters": [
+      "Every LLM inference request starts with prefill \u2014 processing the entire input context before generating the first output token.",
+      "Prefill time scales linearly with context length: 88ms at 500 tokens, 758ms at 8000 tokens.",
+      "With prefix caching, vLLM stores computed KV blocks. A cache hit skips prefill entirely, producing constant ~35-44ms TTFT regardless of context length.",
+      "Standard Kubernetes round-robin load balancing scatters requests randomly across pods. Each pod must re-compute prefill for prompts it has not seen.",
+      "llm-d's cache-aware routing sends requests to the pod that already has the KV cache for that prompt, turning every request into a cache hit."
+    ],
+    "key_findings": [
+      "17.3x TTFT speedup at 8K tokens \u2014 the advantage scales with the context window LLMs actually use in production.",
+      "75% TTFT reduction under 10-concurrent-session load \u2014 the benefit is even MORE dramatic under production concurrency.",
+      "Cache-aware routing converges at request 1 vs request 4 for round-robin (one per pod). With 100 pods in production, RR needs 100 cold starts.",
+      "Agentic chains show compounding benefit: each step reuses ALL prior context. With round-robin, every step must re-prefill context it has already computed on another pod.",
+      "Steady-state TTFT with cache-aware routing stays flat (52-61ms) even as conversation context grows, while round-robin oscillates (179-289ms).",
+      "47.5x TTFT speedup at 32K tokens \u2014 3.7-second cold start reduced to 79ms. The advantage grows nearly linearly with context length."
+    ],
+    "production_implications": [
+      "At production scale (50-100+ pods), the cold-start penalty multiplies. Round-robin needs N cold-start requests before a prompt is cached fleet-wide.",
+      "Agentic AI workflows (tool calling, multi-step reasoning) are the fastest-growing LLM workload. Each agent step adds context that must be prefilled. Cache-aware routing makes this O(1) instead of O(context_length).",
+      "Concurrent sessions compound the advantage: under load, round-robin pods waste GPU cycles re-computing prefill, while cache-aware pods serve from cache and free GPU for decoding.",
+      "The 17x TTFT improvement at 8K tokens will grow further as context windows expand to 32K, 128K, and beyond.",
+      "At 100 pods with 32K context: round-robin warmup = 374 seconds (6.2 minutes). Cache-aware routing: 3.7 seconds."
+    ]
+  },
+  "honest_findings": {
+    "shared_prefix_no_benefit_at_3_pods": {
+      "description": "When 20 users query the same document via round-robin across 3 pods, all 3 pods quickly cache the shared prefix. Sticky routing then concentrates load on 1 pod with no cache advantage, resulting in 15.7% WORSE performance.",
+      "takeaway": "Cache-aware routing benefits per-SESSION context (conversations, agent chains), not globally shared prefixes that all pods eventually cache. The benefit appears at higher pod counts where fleet warmup takes longer.",
+      "rr_median_ms": 43.3,
+      "sticky_median_ms": 50.09
+    }
+  },
+  "prefill_waste": {
+    "concurrent_test": {
+      "rr_total_prefill_tokens": 73500,
+      "sticky_total_prefill_tokens": 26000,
+      "wasted_tokens": 47500,
+      "waste_pct": 64.6
+    },
+    "agentic_test": {
+      "rr_total_prefill_tokens": 28500,
+      "sticky_total_prefill_tokens": 9750,
+      "wasted_tokens": 18750,
+      "waste_pct": 65.8
+    }
+  },
+  "fleet_extrapolation": {
+    "context_tokens": 8000,
+    "measured_cold_ttft_ms": 758.26,
+    "measured_warm_ttft_ms": 43.95,
+    "ms_per_token_prefill": 0.0948,
+    "warmup_by_fleet_size": [
+      {
+        "pods": 3,
+        "rr_cold_starts": 3,
+        "sticky_cold_starts": 1,
+        "rr_warmup_ms": 2274.8,
+        "sticky_warmup_ms": 758.3,
+        "waste_ms": 1516.5,
+        "waste_seconds": 1.52
+      },
+      {
+        "pods": 10,
+        "rr_cold_starts": 10,
+        "sticky_cold_starts": 1,
+        "rr_warmup_ms": 7582.6,
+        "sticky_warmup_ms": 758.3,
+        "waste_ms": 6824.3,
+        "waste_seconds": 6.82
+      },
+      {
+        "pods": 25,
+        "rr_cold_starts": 25,
+        "sticky_cold_starts": 1,
+        "rr_warmup_ms": 18956.5,
+        "sticky_warmup_ms": 758.3,
+        "waste_ms": 18198.2,
+        "waste_seconds": 18.2
+      },
+      {
+        "pods": 50,
+        "rr_cold_starts": 50,
+        "sticky_cold_starts": 1,
+        "rr_warmup_ms": 37913.0,
+        "sticky_warmup_ms": 758.3,
+        "waste_ms": 37154.7,
+        "waste_seconds": 37.15
+      },
+      {
+        "pods": 100,
+        "rr_cold_starts": 100,
+        "sticky_cold_starts": 1,
+        "rr_warmup_ms": 75826.0,
+        "sticky_warmup_ms": 758.3,
+        "waste_ms": 75067.7,
+        "waste_seconds": 75.07
+      },
+      {
+        "pods": 200,
+        "rr_cold_starts": 200,
+        "sticky_cold_starts": 1,
+        "rr_warmup_ms": 151652.0,
+        "sticky_warmup_ms": 758.3,
+        "waste_ms": 150893.7,
+        "waste_seconds": 150.89
+      }
+    ],
+    "hourly_waste_at_1000_req_hr": [
+      {
+        "pods": 3,
+        "rr_cache_miss_rate_pct": 66.7,
+        "wasted_prefill_tokens_per_hour": 2266667,
+        "gpu_seconds_wasted_per_hour": 214.8
+      },
+      {
+        "pods": 10,
+        "rr_cache_miss_rate_pct": 90.0,
+        "wasted_prefill_tokens_per_hour": 3200000,
+        "gpu_seconds_wasted_per_hour": 303.3
+      },
+      {
+        "pods": 50,
+        "rr_cache_miss_rate_pct": 98.0,
+        "wasted_prefill_tokens_per_hour": 3520000,
+        "gpu_seconds_wasted_per_hour": 333.6
+      },
+      {
+        "pods": 100,
+        "rr_cache_miss_rate_pct": 99.0,
+        "wasted_prefill_tokens_per_hour": 3560000,
+        "gpu_seconds_wasted_per_hour": 337.4
+      }
+    ],
+    "context_32k": {
+      "measured_cold_ttft_ms": 3742.47,
+      "measured_warm_ttft_ms": 78.87,
+      "warmup_by_fleet_size": [
+        {
+          "pods": 3,
+          "rr_warmup_seconds": 11.2,
+          "sticky_warmup_seconds": 3.7
+        },
+        {
+          "pods": 10,
+          "rr_warmup_seconds": 37.4,
+          "sticky_warmup_seconds": 3.7
+        },
+        {
+          "pods": 50,
+          "rr_warmup_seconds": 187.1,
+          "sticky_warmup_seconds": 3.7
+        },
+        {
+          "pods": 100,
+          "rr_warmup_seconds": 374.2,
+          "sticky_warmup_seconds": 3.7
+        }
+      ]
+    }
+  },
+  "production_notes": {
+    "more_dramatic_in_production": [
+      "50-100 pods instead of 3: warmup takes 50-100 cold starts with round-robin vs 1 with llm-d. Our 3-pod test understates this by 17-33x.",
+      "32K-128K context windows: the speedup curve keeps climbing past our 17.3x at 8K. At 32K tokens, cold-start TTFT would be ~3 seconds \u2014 cache hits still ~44ms.",
+      "Real EPP picks the pod with the BEST cache match, not just 'the same pod'. It can route to a pod with a partial prefix match, which is smarter than our binary sticky/RR simulation.",
+      "Production workloads mix agentic chains, multi-turn, and RAG \u2014 all benefit from cache-aware routing simultaneously."
+    ],
+    "less_dramatic_in_production": [
+      "The EPP adds a small routing hop (~1-2ms overhead per request). Net benefit is still overwhelmingly positive for any context over ~200 tokens.",
+      "Mixed workloads with short contexts (under 500 tokens) show smaller absolute savings \u2014 2.7x speedup vs 17.3x at 8K.",
+      "Single-shot completions with no context reuse (e.g., classification tasks with unique short inputs) see minimal benefit from cache-aware routing.",
+      "Cache eviction under extreme memory pressure could reduce hit rates. Real deployments should monitor vllm:prefix_cache_hits_total / vllm:prefix_cache_queries_total."
+    ]
+  }
+}

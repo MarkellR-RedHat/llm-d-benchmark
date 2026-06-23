@@ -1,0 +1,1499 @@
+{
+  "metadata": {
+    "timestamp": "2026-06-23T15:21:26Z",
+    "model": "llama-70b-fp8",
+    "pods": [
+      "10.130.6.25",
+      "10.130.6.28",
+      "10.130.6.29"
+    ],
+    "num_pods": 3,
+    "gpu": "NVIDIA H200",
+    "platform": "Red Hat OpenShift (llm-d)"
+  },
+  "baseline_cache_metrics": {
+    "10.130.6.25": {
+      "queries": 311189.0,
+      "hits": 300064.0,
+      "hit_rate": 96.4
+    },
+    "10.130.6.28": {
+      "queries": 115266.0,
+      "hits": 105632.0,
+      "hit_rate": 91.6
+    },
+    "10.130.6.29": {
+      "queries": 68179.0,
+      "hits": 61728.0,
+      "hit_rate": 90.5
+    }
+  },
+  "test_1_context_scaling": [
+    {
+      "target_tokens": 500,
+      "system_prompt_chars": 2062,
+      "cold_ttft_ms": 87.89,
+      "warm_ttft_ms": 32.66,
+      "warm2_ttft_ms": 33.45,
+      "rr_miss_ttft_ms": 89.87,
+      "savings_ms": 55.23,
+      "savings_pct": 62.8,
+      "speedup_x": 2.69
+    },
+    {
+      "target_tokens": 1000,
+      "system_prompt_chars": 4062,
+      "cold_ttft_ms": 109.55,
+      "warm_ttft_ms": 33.06,
+      "warm2_ttft_ms": 34.23,
+      "rr_miss_ttft_ms": 109.39,
+      "savings_ms": 76.49,
+      "savings_pct": 69.8,
+      "speedup_x": 3.31
+    },
+    {
+      "target_tokens": 2000,
+      "system_prompt_chars": 8062,
+      "cold_ttft_ms": 218.57,
+      "warm_ttft_ms": 35.75,
+      "warm2_ttft_ms": 36.19,
+      "rr_miss_ttft_ms": 220.18,
+      "savings_ms": 182.82,
+      "savings_pct": 83.6,
+      "speedup_x": 6.11
+    },
+    {
+      "target_tokens": 4000,
+      "system_prompt_chars": 16062,
+      "cold_ttft_ms": 369.34,
+      "warm_ttft_ms": 37.9,
+      "warm2_ttft_ms": 39.51,
+      "rr_miss_ttft_ms": 375.71,
+      "savings_ms": 331.44,
+      "savings_pct": 89.7,
+      "speedup_x": 9.75
+    },
+    {
+      "target_tokens": 8000,
+      "system_prompt_chars": 32062,
+      "cold_ttft_ms": 758.26,
+      "warm_ttft_ms": 43.95,
+      "warm2_ttft_ms": 45.64,
+      "rr_miss_ttft_ms": 771.48,
+      "savings_ms": 714.31,
+      "savings_pct": 94.2,
+      "speedup_x": 17.25
+    }
+  ],
+  "test_2_long_prefix": {
+    "system_prompt_chars": 32076,
+    "pods": [
+      {
+        "pod_ip": "10.130.6.25",
+        "pod_index": 0,
+        "cold_ttft_ms": 761.05,
+        "warm_ttft_ms": 44.34,
+        "warm2_ttft_ms": 45.63,
+        "speedup_x": 17.16,
+        "savings_ms": 716.71
+      },
+      {
+        "pod_ip": "10.130.6.28",
+        "pod_index": 1,
+        "cold_ttft_ms": 775.86,
+        "warm_ttft_ms": 43.91,
+        "warm2_ttft_ms": 44.09,
+        "speedup_x": 17.67,
+        "savings_ms": 731.95
+      },
+      {
+        "pod_ip": "10.130.6.29",
+        "pod_index": 2,
+        "cold_ttft_ms": 771.66,
+        "warm_ttft_ms": 44.67,
+        "warm2_ttft_ms": 43.76,
+        "speedup_x": 17.27,
+        "savings_ms": 726.99
+      }
+    ],
+    "summary": {
+      "avg_cold_ttft_ms": 769.52,
+      "avg_warm_ttft_ms": 44.31,
+      "avg_speedup_x": 17.37,
+      "avg_savings_ms": 725.22,
+      "fleet_warmup_cost": "3 cold-start requests with round-robin vs 1 with sticky"
+    }
+  },
+  "test_3_concurrent": {
+    "round_robin": {
+      "stats": {
+        "total_requests": 50,
+        "sessions_completed": 10,
+        "wall_time_ms": 5433.99,
+        "ttft_mean_ms": 220.13,
+        "ttft_median_ms": 234.84,
+        "ttft_p95_ms": 288.29,
+        "ttft_p99_ms": 289.04,
+        "ttft_min_ms": 84.92,
+        "ttft_max_ms": 289.04,
+        "ttft_stdev_ms": 61.17
+      },
+      "turn_averages": [
+        {
+          "turn": 1,
+          "mean_ttft_ms": 178.87,
+          "median_ttft_ms": 179.12,
+          "min_ttft_ms": 176.81,
+          "max_ttft_ms": 180.71,
+          "count": 10
+        },
+        {
+          "turn": 2,
+          "mean_ttft_ms": 253.77,
+          "median_ttft_ms": 256.75,
+          "min_ttft_ms": 240.04,
+          "max_ttft_ms": 258.32,
+          "count": 10
+        },
+        {
+          "turn": 3,
+          "mean_ttft_ms": 247.99,
+          "median_ttft_ms": 287.65,
+          "min_ttft_ms": 154.15,
+          "max_ttft_ms": 289.04,
+          "count": 10
+        },
+        {
+          "turn": 4,
+          "mean_ttft_ms": 189.71,
+          "median_ttft_ms": 234.13,
+          "min_ttft_ms": 84.92,
+          "max_ttft_ms": 234.99,
+          "count": 10
+        },
+        {
+          "turn": 5,
+          "mean_ttft_ms": 230.32,
+          "median_ttft_ms": 276.77,
+          "min_ttft_ms": 105.11,
+          "max_ttft_ms": 278.02,
+          "count": 10
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": 1,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 179.24,
+              "total_ms": 998.43,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 257.01,
+              "total_ms": 1091.44,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 289.04,
+              "total_ms": 1143.0,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 233.7,
+              "total_ms": 1075.85,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 277.26,
+              "total_ms": 1120.54,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 2,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 179.0,
+              "total_ms": 996.93,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 258.32,
+              "total_ms": 1092.49,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 287.99,
+              "total_ms": 1142.19,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 234.39,
+              "total_ms": 1076.31,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 276.52,
+              "total_ms": 1119.53,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 3,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 179.25,
+              "total_ms": 996.83,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 255.6,
+              "total_ms": 1072.17,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 154.15,
+              "total_ms": 1121.65,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 85.96,
+              "total_ms": 1077.65,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 152.75,
+              "total_ms": 1139.81,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 4,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 178.66,
+              "total_ms": 996.12,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 256.15,
+              "total_ms": 1071.81,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 155.54,
+              "total_ms": 1122.99,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 85.9,
+              "total_ms": 1076.57,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 105.14,
+              "total_ms": 1119.77,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 5,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 180.09,
+              "total_ms": 1015.85,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 240.63,
+              "total_ms": 1074.6,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 288.53,
+              "total_ms": 1142.31,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 234.17,
+              "total_ms": 1076.05,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 278.02,
+              "total_ms": 1120.45,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 6,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 178.0,
+              "total_ms": 995.77,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 256.48,
+              "total_ms": 1072.7,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 154.41,
+              "total_ms": 1123.04,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 84.92,
+              "total_ms": 1075.88,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 105.11,
+              "total_ms": 1120.54,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 7,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 179.57,
+              "total_ms": 998.3,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 257.86,
+              "total_ms": 1093.26,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 287.38,
+              "total_ms": 1141.46,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 234.09,
+              "total_ms": 1075.59,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 277.69,
+              "total_ms": 1120.62,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 8,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 176.81,
+              "total_ms": 995.48,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 258.02,
+              "total_ms": 1092.57,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 287.92,
+              "total_ms": 1141.75,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 234.7,
+              "total_ms": 1076.97,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 277.18,
+              "total_ms": 1119.29,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 9,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 177.33,
+              "total_ms": 995.52,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 257.55,
+              "total_ms": 1091.24,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 288.29,
+              "total_ms": 1143.13,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 234.99,
+              "total_ms": 1077.59,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 276.55,
+              "total_ms": 1119.63,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 10,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 180.71,
+              "total_ms": 1016.51,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 240.04,
+              "total_ms": 1075.49,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 286.65,
+              "total_ms": 1140.88,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 234.25,
+              "total_ms": 1076.81,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 276.99,
+              "total_ms": 1119.21,
+              "context_messages": 10
+            }
+          ]
+        }
+      ],
+      "errors": []
+    },
+    "sticky": {
+      "stats": {
+        "total_requests": 50,
+        "sessions_completed": 10,
+        "wall_time_ms": 4409.44,
+        "ttft_mean_ms": 55.54,
+        "ttft_median_ms": 46.34,
+        "ttft_p95_ms": 73.04,
+        "ttft_p99_ms": 73.18,
+        "ttft_min_ms": 41.67,
+        "ttft_max_ms": 73.18,
+        "ttft_stdev_ms": 12.97
+      },
+      "turn_averages": [
+        {
+          "turn": 1,
+          "mean_ttft_ms": 51.66,
+          "median_ttft_ms": 43.61,
+          "min_ttft_ms": 41.67,
+          "max_ttft_ms": 67.09,
+          "count": 10
+        },
+        {
+          "turn": 2,
+          "mean_ttft_ms": 52.71,
+          "median_ttft_ms": 46.05,
+          "min_ttft_ms": 41.82,
+          "max_ttft_ms": 73.18,
+          "count": 10
+        },
+        {
+          "turn": 3,
+          "mean_ttft_ms": 54.55,
+          "median_ttft_ms": 49.53,
+          "min_ttft_ms": 41.8,
+          "max_ttft_ms": 70.84,
+          "count": 10
+        },
+        {
+          "turn": 4,
+          "mean_ttft_ms": 57.95,
+          "median_ttft_ms": 60.47,
+          "min_ttft_ms": 42.49,
+          "max_ttft_ms": 71.43,
+          "count": 10
+        },
+        {
+          "turn": 5,
+          "mean_ttft_ms": 60.81,
+          "median_ttft_ms": 68.81,
+          "min_ttft_ms": 45.58,
+          "max_ttft_ms": 73.06,
+          "count": 10
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": 1,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 66.41,
+              "total_ms": 876.6,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.25",
+              "ttft_ms": 73.18,
+              "total_ms": 883.34,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.25",
+              "ttft_ms": 70.75,
+              "total_ms": 880.7,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 71.05,
+              "total_ms": 883.03,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.25",
+              "ttft_ms": 71.24,
+              "total_ms": 882.73,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 2,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.28",
+              "ttft_ms": 42.35,
+              "total_ms": 846.38,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 41.93,
+              "total_ms": 846.26,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.28",
+              "ttft_ms": 42.16,
+              "total_ms": 847.04,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.28",
+              "ttft_ms": 42.49,
+              "total_ms": 853.85,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 45.84,
+              "total_ms": 853.97,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 3,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.29",
+              "ttft_ms": 42.29,
+              "total_ms": 858.76,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.29",
+              "ttft_ms": 45.95,
+              "total_ms": 863.49,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 45.81,
+              "total_ms": 872.8,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.29",
+              "ttft_ms": 45.56,
+              "total_ms": 871.76,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.29",
+              "ttft_ms": 45.79,
+              "total_ms": 872.92,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 4,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 66.57,
+              "total_ms": 876.95,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.25",
+              "ttft_ms": 73.04,
+              "total_ms": 882.96,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.25",
+              "ttft_ms": 70.84,
+              "total_ms": 881.63,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 70.58,
+              "total_ms": 882.28,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.25",
+              "ttft_ms": 71.96,
+              "total_ms": 883.53,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 5,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.28",
+              "ttft_ms": 42.43,
+              "total_ms": 846.92,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 41.82,
+              "total_ms": 845.92,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.28",
+              "ttft_ms": 41.8,
+              "total_ms": 846.63,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.28",
+              "ttft_ms": 42.6,
+              "total_ms": 853.9,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 45.58,
+              "total_ms": 853.71,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 6,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.29",
+              "ttft_ms": 61.3,
+              "total_ms": 878.34,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.29",
+              "ttft_ms": 46.53,
+              "total_ms": 863.6,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 53.24,
+              "total_ms": 872.98,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.29",
+              "ttft_ms": 52.0,
+              "total_ms": 872.22,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.29",
+              "ttft_ms": 73.06,
+              "total_ms": 893.32,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 7,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 44.79,
+              "total_ms": 856.1,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.25",
+              "ttft_ms": 43.42,
+              "total_ms": 862.59,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.25",
+              "ttft_ms": 63.01,
+              "total_ms": 880.76,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 68.93,
+              "total_ms": 881.12,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.25",
+              "ttft_ms": 68.83,
+              "total_ms": 885.04,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 8,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.28",
+              "ttft_ms": 41.67,
+              "total_ms": 845.78,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.28",
+              "ttft_ms": 42.2,
+              "total_ms": 847.0,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.28",
+              "ttft_ms": 41.84,
+              "total_ms": 847.16,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.28",
+              "ttft_ms": 69.16,
+              "total_ms": 873.63,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.28",
+              "ttft_ms": 68.79,
+              "total_ms": 873.78,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 9,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.29",
+              "ttft_ms": 41.73,
+              "total_ms": 858.02,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.29",
+              "ttft_ms": 46.16,
+              "total_ms": 863.51,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.29",
+              "ttft_ms": 45.53,
+              "total_ms": 872.82,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.29",
+              "ttft_ms": 45.74,
+              "total_ms": 871.81,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.29",
+              "ttft_ms": 45.72,
+              "total_ms": 872.6,
+              "context_messages": 10
+            }
+          ]
+        },
+        {
+          "session_id": 10,
+          "turns": [
+            {
+              "turn": 1,
+              "pod": "10.130.6.25",
+              "ttft_ms": 67.09,
+              "total_ms": 877.85,
+              "context_messages": 2
+            },
+            {
+              "turn": 2,
+              "pod": "10.130.6.25",
+              "ttft_ms": 72.9,
+              "total_ms": 883.36,
+              "context_messages": 4
+            },
+            {
+              "turn": 3,
+              "pod": "10.130.6.25",
+              "ttft_ms": 70.5,
+              "total_ms": 880.45,
+              "context_messages": 6
+            },
+            {
+              "turn": 4,
+              "pod": "10.130.6.25",
+              "ttft_ms": 71.43,
+              "total_ms": 883.17,
+              "context_messages": 8
+            },
+            {
+              "turn": 5,
+              "pod": "10.130.6.25",
+              "ttft_ms": 71.29,
+              "total_ms": 882.91,
+              "context_messages": 10
+            }
+          ]
+        }
+      ],
+      "errors": []
+    },
+    "comparison": {
+      "mean_ttft_reduction_pct": 74.8,
+      "p95_ttft_reduction_pct": 74.7,
+      "mean_improvement": "220.1ms \u2192 55.5ms",
+      "p95_improvement": "288.3ms \u2192 73.0ms"
+    }
+  },
+  "test_4_cache_warmup": {
+    "round_robin": {
+      "requests": [
+        {
+          "request_num": 1,
+          "pod": "10.130.6.25",
+          "ttft_ms": 235.17
+        },
+        {
+          "request_num": 2,
+          "pod": "10.130.6.28",
+          "ttft_ms": 238.29
+        },
+        {
+          "request_num": 3,
+          "pod": "10.130.6.29",
+          "ttft_ms": 235.41
+        },
+        {
+          "request_num": 4,
+          "pod": "10.130.6.25",
+          "ttft_ms": 42.31
+        },
+        {
+          "request_num": 5,
+          "pod": "10.130.6.28",
+          "ttft_ms": 41.57
+        },
+        {
+          "request_num": 6,
+          "pod": "10.130.6.29",
+          "ttft_ms": 43.43
+        },
+        {
+          "request_num": 7,
+          "pod": "10.130.6.25",
+          "ttft_ms": 42.39
+        },
+        {
+          "request_num": 8,
+          "pod": "10.130.6.28",
+          "ttft_ms": 43.36
+        },
+        {
+          "request_num": 9,
+          "pod": "10.130.6.29",
+          "ttft_ms": 42.44
+        },
+        {
+          "request_num": 10,
+          "pod": "10.130.6.25",
+          "ttft_ms": 42.13
+        },
+        {
+          "request_num": 11,
+          "pod": "10.130.6.28",
+          "ttft_ms": 42.46
+        },
+        {
+          "request_num": 12,
+          "pod": "10.130.6.29",
+          "ttft_ms": 43.36
+        },
+        {
+          "request_num": 13,
+          "pod": "10.130.6.25",
+          "ttft_ms": 41.59
+        },
+        {
+          "request_num": 14,
+          "pod": "10.130.6.28",
+          "ttft_ms": 42.25
+        },
+        {
+          "request_num": 15,
+          "pod": "10.130.6.29",
+          "ttft_ms": 41.44
+        },
+        {
+          "request_num": 16,
+          "pod": "10.130.6.25",
+          "ttft_ms": 42.06
+        },
+        {
+          "request_num": 17,
+          "pod": "10.130.6.28",
+          "ttft_ms": 42.9
+        },
+        {
+          "request_num": 18,
+          "pod": "10.130.6.29",
+          "ttft_ms": 41.92
+        },
+        {
+          "request_num": 19,
+          "pod": "10.130.6.25",
+          "ttft_ms": 41.87
+        },
+        {
+          "request_num": 20,
+          "pod": "10.130.6.28",
+          "ttft_ms": 42.27
+        }
+      ],
+      "convergence": {
+        "converged_at_request": 4,
+        "min_ttft_ms": 41.44,
+        "threshold_ms": 82.88,
+        "first_3_avg_ms": 236.29,
+        "last_5_avg_ms": 42.2
+      }
+    },
+    "sticky": {
+      "requests": [
+        {
+          "request_num": 1,
+          "pod": "10.130.6.25",
+          "ttft_ms": 37.95
+        },
+        {
+          "request_num": 2,
+          "pod": "10.130.6.25",
+          "ttft_ms": 41.27
+        },
+        {
+          "request_num": 3,
+          "pod": "10.130.6.25",
+          "ttft_ms": 34.62
+        },
+        {
+          "request_num": 4,
+          "pod": "10.130.6.25",
+          "ttft_ms": 36.25
+        },
+        {
+          "request_num": 5,
+          "pod": "10.130.6.25",
+          "ttft_ms": 40.79
+        },
+        {
+          "request_num": 6,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.8
+        },
+        {
+          "request_num": 7,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.68
+        },
+        {
+          "request_num": 8,
+          "pod": "10.130.6.25",
+          "ttft_ms": 41.8
+        },
+        {
+          "request_num": 9,
+          "pod": "10.130.6.25",
+          "ttft_ms": 36.09
+        },
+        {
+          "request_num": 10,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.02
+        },
+        {
+          "request_num": 11,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.3
+        },
+        {
+          "request_num": 12,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.43
+        },
+        {
+          "request_num": 13,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.76
+        },
+        {
+          "request_num": 14,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.19
+        },
+        {
+          "request_num": 15,
+          "pod": "10.130.6.25",
+          "ttft_ms": 34.97
+        },
+        {
+          "request_num": 16,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.22
+        },
+        {
+          "request_num": 17,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.0
+        },
+        {
+          "request_num": 18,
+          "pod": "10.130.6.25",
+          "ttft_ms": 34.79
+        },
+        {
+          "request_num": 19,
+          "pod": "10.130.6.25",
+          "ttft_ms": 35.12
+        },
+        {
+          "request_num": 20,
+          "pod": "10.130.6.25",
+          "ttft_ms": 34.72
+        }
+      ],
+      "convergence": {
+        "converged_at_request": 1,
+        "min_ttft_ms": 34.62,
+        "threshold_ms": 69.24,
+        "first_3_avg_ms": 37.95,
+        "last_5_avg_ms": 34.97
+      }
+    },
+    "comparison": {
+      "rr_converge_request": 4,
+      "sticky_converge_request": 1,
+      "rr_first3_vs_sticky_first3": "236.3ms vs 38.0ms",
+      "steady_state_rr": "42.2ms",
+      "steady_state_sticky": "35.0ms"
+    }
+  },
+  "test_5_extended_agentic": {
+    "round_robin": {
+      "steps": [
+        {
+          "step": 1,
+          "pod": "10.130.6.25",
+          "ttft_ms": 678.93,
+          "total_ms": 1920.72,
+          "context_tokens_approx": 7295
+        },
+        {
+          "step": 2,
+          "pod": "10.130.6.28",
+          "ttft_ms": 730.44,
+          "total_ms": 1961.62,
+          "context_tokens_approx": 7550
+        },
+        {
+          "step": 3,
+          "pod": "10.130.6.29",
+          "ttft_ms": 748.37,
+          "total_ms": 2002.85,
+          "context_tokens_approx": 7801
+        },
+        {
+          "step": 4,
+          "pod": "10.130.6.25",
+          "ttft_ms": 148.57,
+          "total_ms": 1389.46,
+          "context_tokens_approx": 8061
+        },
+        {
+          "step": 5,
+          "pod": "10.130.6.28",
+          "ttft_ms": 152.84,
+          "total_ms": 1384.46,
+          "context_tokens_approx": 8313
+        },
+        {
+          "step": 6,
+          "pod": "10.130.6.29",
+          "ttft_ms": 152.18,
+          "total_ms": 1406.16,
+          "context_tokens_approx": 8600
+        },
+        {
+          "step": 7,
+          "pod": "10.130.6.25",
+          "ttft_ms": 152.23,
+          "total_ms": 1397.09,
+          "context_tokens_approx": 8875
+        },
+        {
+          "step": 8,
+          "pod": "10.130.6.28",
+          "ttft_ms": 150.1,
+          "total_ms": 1385.53,
+          "context_tokens_approx": 9154
+        },
+        {
+          "step": 9,
+          "pod": "10.130.6.29",
+          "ttft_ms": 141.87,
+          "total_ms": 1399.24,
+          "context_tokens_approx": 9404
+        },
+        {
+          "step": 10,
+          "pod": "10.130.6.25",
+          "ttft_ms": 147.43,
+          "total_ms": 1395.87,
+          "context_tokens_approx": 9730
+        },
+        {
+          "step": 11,
+          "pod": "10.130.6.28",
+          "ttft_ms": 143.13,
+          "total_ms": 1382.98,
+          "context_tokens_approx": 10003
+        },
+        {
+          "step": 12,
+          "pod": "10.130.6.29",
+          "ttft_ms": 143.79,
+          "total_ms": 1406.49,
+          "context_tokens_approx": 10300
+        }
+      ],
+      "summary": {
+        "first_3_avg_ttft_ms": 719.25,
+        "last_3_avg_ttft_ms": 144.78,
+        "ttft_growth_ratio": 0.2,
+        "max_context_tokens": 10300,
+        "total_steps": 12
+      }
+    },
+    "sticky": {
+      "steps": [
+        {
+          "step": 1,
+          "pod": "10.130.6.25",
+          "ttft_ms": 43.86,
+          "total_ms": 1279.92,
+          "context_tokens_approx": 7294
+        },
+        {
+          "step": 2,
+          "pod": "10.130.6.25",
+          "ttft_ms": 68.93,
+          "total_ms": 1306.21,
+          "context_tokens_approx": 7549
+        },
+        {
+          "step": 3,
+          "pod": "10.130.6.25",
+          "ttft_ms": 71.59,
+          "total_ms": 1311.06,
+          "context_tokens_approx": 7800
+        },
+        {
+          "step": 4,
+          "pod": "10.130.6.25",
+          "ttft_ms": 71.04,
+          "total_ms": 1311.11,
+          "context_tokens_approx": 8059
+        },
+        {
+          "step": 5,
+          "pod": "10.130.6.25",
+          "ttft_ms": 71.37,
+          "total_ms": 1312.67,
+          "context_tokens_approx": 8310
+        },
+        {
+          "step": 6,
+          "pod": "10.130.6.25",
+          "ttft_ms": 73.13,
+          "total_ms": 1315.67,
+          "context_tokens_approx": 8598
+        },
+        {
+          "step": 7,
+          "pod": "10.130.6.25",
+          "ttft_ms": 65.8,
+          "total_ms": 1310.63,
+          "context_tokens_approx": 8873
+        },
+        {
+          "step": 8,
+          "pod": "10.130.6.25",
+          "ttft_ms": 67.97,
+          "total_ms": 1313.96,
+          "context_tokens_approx": 9151
+        },
+        {
+          "step": 9,
+          "pod": "10.130.6.25",
+          "ttft_ms": 67.02,
+          "total_ms": 1313.73,
+          "context_tokens_approx": 9413
+        },
+        {
+          "step": 10,
+          "pod": "10.130.6.25",
+          "ttft_ms": 72.57,
+          "total_ms": 1319.61,
+          "context_tokens_approx": 9736
+        },
+        {
+          "step": 11,
+          "pod": "10.130.6.25",
+          "ttft_ms": 122.03,
+          "total_ms": 1370.46,
+          "context_tokens_approx": 10013
+        },
+        {
+          "step": 12,
+          "pod": "10.130.6.25",
+          "ttft_ms": 66.41,
+          "total_ms": 1318.4,
+          "context_tokens_approx": 10305
+        }
+      ],
+      "summary": {
+        "first_3_avg_ttft_ms": 61.46,
+        "last_3_avg_ttft_ms": 87.0,
+        "ttft_growth_ratio": 1.42,
+        "max_context_tokens": 10305,
+        "total_steps": 12
+      }
+    },
+    "comparison": {
+      "rr_ttft_growth": "719.2ms \u2192 144.8ms (0.20x)",
+      "sticky_ttft_growth": "61.5ms \u2192 87.0ms (1.42x)",
+      "late_stage_improvement_pct": 39.9
+    }
+  },
+  "total_runtime_seconds": 119.69,
+  "final_cache_metrics": {
+    "10.130.6.25": {
+      "queries": 524507.0,
+      "hits": 484080.0,
+      "hit_rate": 92.3
+    },
+    "10.130.6.28": {
+      "queries": 200762.0,
+      "hits": 163456.0,
+      "hit_rate": 81.4
+    },
+    "10.130.6.29": {
+      "queries": 135246.0,
+      "hits": 112256.0,
+      "hit_rate": 83.0
+    }
+  }
+}
