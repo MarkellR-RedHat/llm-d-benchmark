@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 145'%3E%3Cg fill='%23ee0000'%3E%3Cpath d='M127.47 83.49c12.51 0 30.61-2.58 30.61-17.46a14 14 0 0 0-.31-3.42l-7.45-32.36c-1.72-7.12-3.23-10.35-15.73-16.6C124.89 8.69 103.76.5 97.51.5 91.69.5 90 8 83.06 8c-6.68 0-11.64-5.6-17.89-5.6-6 0-9.91 4.09-12.93 12.5 0 0-8.41 23.72-9.49 27.16A6.43 6.43 0 0 0 42.53 44c0 9.22 36.3 39.45 84.94 39.45M160 72.07c1.73 8.19 1.73 9.05 1.73 10.13 0 14-15.74 21.77-36.43 21.77C78.54 104 37.58 76.6 37.58 58.49a18.45 18.45 0 0 1 1.51-7.33C22.27 52 .5 55 .5 74.22c0 31.48 74.59 70.28 133.65 70.28 45.28 0 56.7-20.48 56.7-36.65 0-12.72-11-27.16-30.83-35.78'/%3E%3C/g%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>47x faster time-to-first-token: benchmarking llm-d's cache-aware routing on NVIDIA H200 GPUs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700;800;900&family=Red+Hat+Text:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Red Hat Text', sans-serif;
+      font-size: 17px;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+
+    h1, h2, h3, h4 { font-family: 'Red Hat Display', sans-serif; font-weight: 700; color: #1a1a1a; }
+    h1 { font-size: 2.2em; line-height: 1.2; margin-bottom: 0.3em; }
+    h2 { font-size: 1.5em; margin-top: 2.5em; margin-bottom: 0.8em; padding-bottom: 0.4em; border-bottom: 3px solid #EE0000; }
+    h3 { font-size: 1.2em; margin-top: 1.8em; margin-bottom: 0.6em; }
+    p { margin: 0 0 1.2em 0; }
+    a { color: #0066CC; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .submission-meta {
+      background: #f0f0f0; border: 1px solid #d0d0d0; border-radius: 6px;
+      padding: 24px 28px; margin-bottom: 40px; font-size: 0.92em;
+    }
+    .submission-meta h3 {
+      font-family: 'Red Hat Display', sans-serif; margin: 0 0 16px 0; font-size: 1.1em;
+      color: #333; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .submission-meta table { width: 100%; border-collapse: collapse; }
+    .submission-meta td { padding: 8px 12px; border-bottom: 1px solid #d0d0d0; vertical-align: top; }
+    .submission-meta tr:last-child td { border-bottom: none; }
+    .submission-meta td:first-child { font-weight: 700; width: 200px; color: #444; }
+
+    .byline { font-size: 1.05em; color: #555; margin-bottom: 2em; }
+
+    .reference-note {
+      background: #f9f9f9; border-left: 3px solid #0066CC;
+      padding: 12px 18px; margin: 1.5em 0; font-size: 0.95em; color: #444;
+    }
+
+    table.data-table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 0.93em; }
+    table.data-table thead th {
+      background: #1a1a1a; color: #ffffff; padding: 12px 14px; text-align: left;
+      font-family: 'Red Hat Display', sans-serif; font-weight: 600; font-size: 0.95em;
+    }
+    table.data-table tbody td { padding: 10px 14px; border-bottom: 1px solid #e0e0e0; }
+    table.data-table tbody tr:nth-child(even) { background: #f7f7f7; }
+    table.data-table tbody tr:nth-child(odd) { background: #ffffff; }
+    table.data-table tbody tr:hover { background: #eef4fb; }
+    .table-wrap { overflow-x: auto; margin: 1.5em 0; }
+
+    blockquote.callout {
+      background: #fdf5f5; border-left: 4px solid #EE0000;
+      margin: 1.8em 0; padding: 18px 22px; font-size: 1.02em; line-height: 1.65; color: #2a2a2a;
+    }
+    blockquote.callout p { margin: 0; }
+
+    figure { margin: 1.5em 0 2em 0; }
+    figcaption { font-style: italic; font-size: 0.9em; color: #666; margin-top: 0.5em; line-height: 1.5; }
+
+    code {
+      font-family: 'Menlo', 'Consolas', 'Monaco', monospace;
+      font-size: 0.88em; background: #f3f3f3; padding: 2px 6px; border-radius: 3px;
+    }
+
+    pre {
+      background: #1e1e1e; color: #d4d4d4; padding: 18px 22px;
+      border-radius: 6px; overflow-x: auto; font-size: 0.88em; line-height: 1.5;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    .cta-box {
+      background: #f5f5f5; border-left: 4px solid #EE0000;
+      padding: 24px 28px; margin: 2em 0; border-radius: 0 6px 6px 0;
+    }
+    .cta-box h3 { margin-top: 0; font-family: 'Red Hat Display', sans-serif; }
+    .cta-box ul { margin: 0; padding-left: 0; list-style: none; }
+    .cta-box li { margin-bottom: 0.8em; padding-left: 1.4em; position: relative; }
+    .cta-box li::before { content: '\2192'; position: absolute; left: 0; color: #EE0000; font-weight: 700; }
+
+    dl.method-list dt { font-weight: 700; color: #333; margin-top: 0.8em; }
+    dl.method-list dd { margin-left: 0; margin-bottom: 0.4em; padding-left: 1em; border-left: 2px solid #e0e0e0; }
+
+    table.links-table { width: 100%; border-collapse: collapse; font-size: 0.93em; margin: 1em 0; }
+    table.links-table td { padding: 8px 12px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
+    table.links-table td:first-child { font-weight: 600; width: 240px; color: #333; }
+
+    .footer {
+      margin-top: 3em; padding-top: 1.5em; border-top: 1px solid #ddd;
+      font-size: 0.9em; color: #777; text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 20px 16px; }
+      h1 { font-size: 1.6em; }
+      h2 { font-size: 1.3em; }
+      .submission-meta td:first-child { width: 140px; }
+      table.data-table { font-size: 0.85em; }
+      table.data-table thead th, table.data-table tbody td { padding: 8px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Submission Metadata -->
+    <div class="submission-meta">
+      <h3>Marketing / Blog Post Submission</h3>
+      <table>
+        <tr><td>Publication</td><td><strong>Red Hat Developer blog</strong> &nbsp; developers.redhat.com/blog</td></tr>
+        <tr><td>Byline</td><td><strong>Markell Rawls</strong>, Developer Advocate, Red Hat</td></tr>
+        <tr><td>Reviews needed</td><td>Peer review pending</td></tr>
+        <tr>
+          <td>Image checklist</td>
+          <td>
+            &#10003; Diagrams are described as placeholders with alt text captions<br>
+            &#10003; Alt text is provided for all images<br>
+            &#10003; No photos of people included
+          </td>
+        </tr>
+        <tr>
+          <td>Pre-submission checklist</td>
+          <td>&#10003; Technical accuracy &nbsp; &#10003; Data verified &nbsp; &#10003; Links checked &nbsp; &#10003; Alt text provided &nbsp; &#10003; CTA included</td>
+        </tr>
+        <tr><td>Request form</td><td>Workfront request form <em>(to be submitted)</em></td></tr>
+        <tr><td>Workfront project</td><td><em>Editor to provide</em></td></tr>
+        <tr><td>Live URL</td><td><em>Editor to provide</em></td></tr>
+      </table>
+    </div>
+
+    <article>
+      <header>
+        <h1>47x faster time-to-first-token: benchmarking llm-d's cache-aware routing on NVIDIA H200 GPUs</h1>
+        <p class="byline">By Markell Rawls, Developer Advocate, Red Hat</p>
+      </header>
+
+      <!-- Opening -->
+      <section>
+        <p>If you're serving large language models on Kubernetes today, your inference stack probably has a problem you haven't noticed yet. Every follow-up message in a multi-turn conversation, every tool call in an agentic chain, every iterative question against a long document&mdash;all of them are recomputing context that was already computed seconds ago on a different pod.</p>
+
+        <p>This is the prefill problem. Before an LLM generates a single token, it has to process every prior token in the conversation. This prefill phase scales linearly with context length and dominates time-to-first-token (TTFT). Standard Kubernetes round-robin load balancing makes it worse by scattering sequential requests across pods, forcing each one to re-derive the KV cache from scratch.</p>
+
+        <p><a href="https://github.com/llm-d/llm-d">llm-d</a> solves this with KV-cache-aware routing. Its Endpoint Picker (EPP) sends each request to the pod that already has the relevant KV cache in GPU memory. Instead of recomputing, it reuses.</p>
+
+        <p>We benchmarked this on real hardware to find out how much it actually matters. The answer: a lot more than we expected.</p>
+
+        <figure>
+          <figcaption>Standard round-robin load balancing: follow-up requests land on random pods and recompute prefill from scratch. llm-d routes follow-up requests to the pod that already has the prefix cached. [Diagram placeholder.]</figcaption>
+        </figure>
+
+        <div class="reference-note">
+          New to llm-d? Read <a href="https://redhat.com/en/blog/what-llm-d-and-why-do-we-need-it">What is llm-d and why do we need it?</a> for the conceptual foundation. For deployment instructions, see <a href="#">Deploy llm-d on Kubernetes in 5 minutes</a>.
+        </div>
+      </section>
+
+      <!-- What we tested -->
+      <section>
+        <h2>What we tested</h2>
+
+        <p>We designed a benchmark suite to isolate the impact of cache-aware routing under realistic inference conditions. Every measurement was taken inside the pod&mdash;no load balancer, no proxy, no route&mdash;so the numbers reflect what the GPU is actually doing, not what the network adds.</p>
+
+        <dl class="method-list">
+          <dt>Model</dt>
+          <dd>Meta Llama 3.1 70B Instruct with FP8-dynamic quantization, published by <a href="https://huggingface.co/RedHatAI">Red Hat AI on Hugging Face</a></dd>
+
+          <dt>Hardware</dt>
+          <dd>3x NVIDIA H200 141GB HBM3e GPUs on a single <a href="https://redhat.com/en/technologies/cloud-computing/openshift">Red Hat OpenShift</a> node</dd>
+
+          <dt>Inference engine</dt>
+          <dd>vLLM with automatic prefix caching enabled</dd>
+
+          <dt>Measurement</dt>
+          <dd>In-pod via direct HTTPS with streaming SSE parsing. <code>time.perf_counter()</code> for TTFT. Zero network overhead</dd>
+
+          <dt>Routing comparison</dt>
+          <dd><strong>Round-robin:</strong> strict pod rotation simulating standard Kubernetes Service behavior. <strong>Cache-aware:</strong> all session requests routed to one pod, simulating llm-d's EPP</dd>
+
+          <dt>Test suite</dt>
+          <dd>8 tests covering context scaling (500&ndash;32K tokens), concurrent load, agentic chains, multi-turn conversations, and cache warmup dynamics</dd>
+        </dl>
+      </section>
+
+      <!-- The scaling advantage -->
+      <section>
+        <h2>The scaling advantage</h2>
+
+        <p>The core result is straightforward: cache-aware routing gets faster relative to round-robin as context length increases. Cold-start TTFT scales linearly at roughly 0.095ms per token. Cache-hit TTFT barely moves.</p>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Context (tokens)</th><th>Cold TTFT</th><th>Warm TTFT</th><th>Speedup</th><th>Savings</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>500</td><td>88ms</td><td>33ms</td><td>2.7x</td><td>63%</td></tr>
+              <tr><td>1,000</td><td>110ms</td><td>33ms</td><td>3.3x</td><td>70%</td></tr>
+              <tr><td>2,000</td><td>219ms</td><td>36ms</td><td>6.1x</td><td>84%</td></tr>
+              <tr><td>4,000</td><td>369ms</td><td>38ms</td><td>9.8x</td><td>90%</td></tr>
+              <tr><td>8,000</td><td>758ms</td><td>44ms</td><td>17.2x</td><td>94%</td></tr>
+              <tr><td>12,000</td><td>1,270ms</td><td>49ms</td><td>25.9x</td><td>96%</td></tr>
+              <tr><td>16,000</td><td>1,637ms</td><td>55ms</td><td>29.6x</td><td>97%</td></tr>
+              <tr><td>24,000</td><td>2,692ms</td><td>66ms</td><td>40.9x</td><td>98%</td></tr>
+              <tr><td>32,000</td><td>3,742ms</td><td>79ms</td><td>47.5x</td><td>98%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The growing gap between those two columns is the entire value proposition of cache-aware routing, and it grows with every token of context.</p>
+
+        <blockquote class="callout">
+          <p>At 32,000 tokens&mdash;common for RAG with long documents&mdash;a cold-start request waits 3.7 seconds before the model generates a single token. With cache-aware routing, the same request produces its first token in 79 milliseconds.</p>
+        </blockquote>
+
+        <p>As models move to 128K context windows, this advantage only grows. The curve showed no sign of plateauing at 47.5x.</p>
+
+        <figure>
+          <figcaption>TTFT scaling curve: cold (round-robin) vs warm (cache-aware) across context lengths from 500 to 32,000 tokens on Llama 3.1 70B (H200). The widening gap IS the savings. [Chart placeholder&mdash;see <a href="https://markellr-redhat.github.io/llm-d-benchmark/">interactive results app</a> for live visualization.]</figcaption>
+        </figure>
+      </section>
+
+      <!-- Under production load -->
+      <section>
+        <h2>Under production load</h2>
+
+        <p>Single-request benchmarks are useful, but production inference servers handle many sessions at once. We ran 10 concurrent sessions, each executing 5 conversational turns simultaneously.</p>
+
+        <p>Round-robin delivered a mean TTFT of 220ms with a P95 of 288ms. Cache-aware routing: mean of 55ms, P95 of 73ms. That's a 75% reduction.</p>
+
+        <p>The advantage was <em>larger</em> under concurrent load, not smaller. This makes sense: cache misses waste GPU compute on redundant prefill, and that wasted work competes with other in-flight requests for GPU cycles. Cache hits free the GPU to focus on decoding, which benefits everyone in the queue.</p>
+
+        <p>The per-turn breakdown tells an equally important story. Cache-aware routing stayed flat at 52&ndash;61ms across all 5 turns. Round-robin oscillated between 179&ndash;289ms depending on whether a given turn happened to land on a pod that had already seen this session. Users notice variance as much as they notice absolute delay.</p>
+
+        <figure>
+          <figcaption>Per-turn TTFT comparison under 10-session concurrent load. Cache-aware routing (green) delivers flat, predictable latency. Round-robin (red) swings wildly. [Chart placeholder.]</figcaption>
+        </figure>
+      </section>
+
+      <!-- Agentic workflows -->
+      <section>
+        <h2>Agentic workflows compound the benefit</h2>
+
+        <p>We simulated a 12-step agentic chain processing a 7,000-token document. Context grew from 7,000 tokens at step 1 to 10,300 tokens by step 12 as tool calls and reasoning steps accumulated. This is a common production pattern: RAG retrieval followed by iterative analysis, summarization, and action planning.</p>
+
+        <p>Under round-robin, the first 3 steps averaged roughly 700ms each&mdash;the cold-start penalty, with each step landing on a pod seeing the document for the first time. Steps 4 through 12 dropped to about 145ms as the prefix cached across all pods, but each pod still re-prefilled the growing conversation context beyond the shared prefix.</p>
+
+        <p>Cache-aware routing stayed at 44&ndash;87ms throughout the entire chain. Every step landed on the same pod, so each step only prefilled the ~250 new tokens added since the last step. The result: a 40% TTFT reduction even in late stages where round-robin had already warmed its prefix caches.</p>
+
+        <blockquote class="callout">
+          <p>In an agentic workflow, every tool call carries the ENTIRE prior conversation as context. Without cache-aware routing, each step re-prefills everything the previous step already computed&mdash;on a different pod.</p>
+        </blockquote>
+
+        <figure>
+          <figcaption>12-step agentic chain TTFT per step. Round-robin shows cold-start spikes (steps 1&ndash;3) and elevated steady-state (~145ms). Cache-aware stays flat at 44&ndash;87ms. [Chart placeholder.]</figcaption>
+        </figure>
+      </section>
+
+      <!-- Fleet scale -->
+      <section>
+        <h2>What this means at fleet scale</h2>
+
+        <p>Our benchmark used 3 pods. That's enough to demonstrate the pattern but small enough that round-robin warmup completes quickly. In production fleets with tens or hundreds of pods, warmup cost becomes the dominant performance factor.</p>
+
+        <p>With 3 pods, round-robin needed 3 sequential cold starts before the fleet converged to cached performance. With cache-aware routing, convergence happened at request 1.</p>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Pods</th><th>RR Warmup (8K ctx)</th><th>RR Warmup (32K ctx)</th><th>Cache-Aware</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>3</td><td>2.3s</td><td>11.2s</td><td>0.8s / 3.7s</td></tr>
+              <tr><td>10</td><td>7.6s</td><td>37.4s</td><td>same</td></tr>
+              <tr><td>50</td><td>37.9s</td><td>187.1s</td><td>same</td></tr>
+              <tr><td>100</td><td>75.8s</td><td>374.2s</td><td>same</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>At 100 pods with a 32K-token prompt, round-robin needs over six minutes of sequential cold starts before the fleet is warm. Cache-aware routing: 3.7 seconds. One cold start, once, on one pod. The gap is O(N) vs O(1).</p>
+
+        <figure>
+          <figcaption>Fleet warmup cost projection. Round-robin (red) scales linearly with pod count. Cache-aware (green) is constant regardless of fleet size. [Chart placeholder.]</figcaption>
+        </figure>
+      </section>
+
+      <!-- Where it doesn't help -->
+      <section>
+        <h2>Where it doesn't help (and that's okay)</h2>
+
+        <p>When 20 users queried the same shared document simultaneously, sticky routing was 15.7% <em>slower</em> than round-robin with 3 pods. All 3 pods quickly cached the shared prefix through natural request distribution, so sticky routing just concentrated load on one pod unnecessarily.</p>
+
+        <p>This is actually the correct behavior. Cache-aware routing's value is in per-session context&mdash;conversations, agent chains, user-specific RAG retrieval. For globally shared prefixes that all pods cache quickly, the EPP should distribute load evenly. And at larger fleet sizes (50+ pods), even shared prefixes benefit from cache-aware routing because fleet-wide warmup takes proportionally longer.</p>
+      </section>
+
+      <!-- In production -->
+      <section>
+        <h2>In production, expect even more</h2>
+
+        <p>Several factors would make the advantage more dramatic in production than what we measured on our 3-pod testbed:</p>
+
+        <ul>
+          <li><strong>Fleet size:</strong> 50&ndash;100+ pods push warmup cost linearly higher, making cache-aware routing's constant-time warmup enormously valuable</li>
+          <li><strong>Context windows:</strong> 32K&ndash;128K tokens extend the speedup curve further&mdash;it showed no sign of plateauing</li>
+          <li><strong>Real EPP intelligence:</strong> The actual EPP picks the pod with the <em>best</em> cache match across all sessions, not just "the same pod" like our simulation</li>
+          <li><strong>Mixed workloads:</strong> Production traffic combines agentic chains, multi-turn, and RAG simultaneously, compounding benefits we measured in isolation</li>
+        </ul>
+
+        <p>Some factors temper the results. The EPP adds approximately 1&ndash;2ms of routing latency. Short contexts under 500 tokens see a smaller absolute savings (2.7x rather than 47x). And single-shot completions with no context reuse see minimal benefit.</p>
+      </section>
+
+      <!-- What's next -->
+      <section>
+        <h2>What's next</h2>
+
+        <p>llm-d is an open source project under the <a href="https://cncf.io">Cloud Native Computing Foundation (CNCF)</a> sandbox. The full source, documentation, and deployment guides are available on GitHub.</p>
+
+        <div class="cta-box">
+          <h3>Get started with llm-d</h3>
+          <p>If you're already running vLLM in production and want to add intelligent routing without rearchitecting your stack, llm-d is designed to drop in with minimal changes.</p>
+          <ul>
+            <li><strong>Explore the source:</strong> Browse the <a href="https://github.com/llm-d/llm-d">llm-d project on GitHub</a> for documentation and deployment recipes</li>
+            <li><strong>Deploy it yourself:</strong> Follow the companion guide <a href="#">Deploy llm-d on Kubernetes in 5 minutes</a></li>
+            <li><strong>Interactive results:</strong> Explore all benchmark data in the <a href="https://markellr-redhat.github.io/llm-d-benchmark/">companion web app</a></li>
+            <li><strong>Join the community:</strong> Connect with contributors in the <a href="https://cloud-native.slack.com/archives/llm-d">llm-d Slack channel</a></li>
+            <li><strong>Go deeper:</strong> Read <a href="https://redhat.com/en/blog/what-llm-d-and-why-do-we-need-it">What is llm-d and why do we need it?</a> for the architectural deep dive</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Links referenced -->
+      <section>
+        <h2>All links referenced in this post</h2>
+
+        <table class="links-table">
+          <tr><td>llm-d GitHub repo</td><td><a href="https://github.com/llm-d/llm-d">github.com/llm-d/llm-d</a></td></tr>
+          <tr><td>"What is llm-d?" blog</td><td><a href="https://redhat.com/en/blog/what-llm-d-and-why-do-we-need-it">redhat.com/en/blog/what-llm-d-and-why-do-we-need-it</a></td></tr>
+          <tr><td>Deploy llm-d in 5 minutes</td><td>(link TBD)</td></tr>
+          <tr><td>Interactive benchmark results</td><td><a href="https://markellr-redhat.github.io/llm-d-benchmark/">markellr-redhat.github.io/llm-d-benchmark</a></td></tr>
+          <tr><td>Red Hat AI on Hugging Face</td><td><a href="https://huggingface.co/RedHatAI">huggingface.co/RedHatAI</a></td></tr>
+          <tr><td>Red Hat OpenShift</td><td><a href="https://redhat.com/en/technologies/cloud-computing/openshift">redhat.com/en/technologies/cloud-computing/openshift</a></td></tr>
+          <tr><td>NVIDIA H200 specifications</td><td><a href="https://www.nvidia.com/en-us/data-center/h200/">nvidia.com/en-us/data-center/h200</a></td></tr>
+          <tr><td>CNCF</td><td><a href="https://cncf.io">cncf.io</a></td></tr>
+          <tr><td>llm-d Slack channel</td><td><a href="https://cloud-native.slack.com/archives/llm-d">cloud-native.slack.com/archives/llm-d</a></td></tr>
+        </table>
+      </section>
+
+    </article>
+
+    <footer class="footer">
+      <p>Submitted by Markell Rawls &middot; Developer Advocate &middot; Red Hat</p>
+    </footer>
+
+  </div>
+
+<div style="text-align:center;padding:24px 0;max-width:800px;margin:0 auto;"><a href="https://markellr-redhat.github.io/llm-d-content-hub/" style="font-family:'Red Hat Display',sans-serif;font-size:0.85rem;font-weight:600;color:#CC0000;text-decoration:none;">&larr; Back to llm-d Content Hub</a> &nbsp;&middot;&nbsp; <a href="https://markellr-redhat.github.io/llm-d-benchmark/" style="font-family:'Red Hat Display',sans-serif;font-size:0.85rem;font-weight:600;color:#0066CC;text-decoration:none;">Open Interactive Benchmark App &rarr;</a></div>
+</body>
+</html>
