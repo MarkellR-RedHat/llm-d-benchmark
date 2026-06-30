@@ -138,16 +138,16 @@
             <p class="chart-description">TTFT grows linearly with context length for cold starts (88ms to 3.7s), while cache hits stay nearly flat (33ms to 79ms). The widening gap is the value of cache-aware routing.</p>
           </div>
           <div class="chart-container"><canvas id="chart-scaling"></canvas></div>
-          <div class="chart-insight"><strong>Key insight:</strong> At 32K tokens, cold-start TTFT is 3,742ms vs 79ms with a cache hit &mdash; a 47.5x speedup. The advantage compounds as context windows grow.</div>
+          <div class="chart-insight"><strong>Key insight:</strong> At 32K tokens, cold-start TTFT is 3,742ms vs 79ms with a cache hit--  a 47.5x speedup. The advantage compounds as context windows grow.</div>
         </div>
 
         <div class="chart-panel" id="panel-speedup">
           <div class="chart-header">
             <h3>Speedup Factor by Context Length</h3>
-            <p class="chart-description">How many times faster cache-aware routing is at each context length. The advantage scales nearly linearly &mdash; longer contexts mean bigger wins.</p>
+            <p class="chart-description">How many times faster cache-aware routing is at each context length. The advantage scales nearly linearly--  longer contexts mean bigger wins.</p>
           </div>
           <div class="chart-container"><canvas id="chart-speedup"></canvas></div>
-          <div class="chart-insight"><strong>Key insight:</strong> Even at just 500 tokens, cache-aware routing is 2.7x faster. At 32K tokens, it reaches 47.5x &mdash; and context windows keep growing.</div>
+          <div class="chart-insight"><strong>Key insight:</strong> Even at just 500 tokens, cache-aware routing is 2.7x faster. At 32K tokens, it reaches 47.5x--  and context windows keep growing.</div>
         </div>
 
         <div class="chart-panel" id="panel-concurrent">
@@ -174,7 +174,7 @@
             <p class="chart-description">TTFT at each step of a 12-step agent workflow with a 7K-token document. Context grows with each step, making cache reuse increasingly valuable.</p>
           </div>
           <div class="chart-container"><canvas id="chart-agentic12"></canvas></div>
-          <div class="chart-insight"><strong>Key insight:</strong> Round-robin starts with a 679ms cold start, then stabilizes at ~150ms after pod warmup. Cache-aware stays at 65-73ms throughout &mdash; 40% reduction at step 12.</div>
+          <div class="chart-insight"><strong>Key insight:</strong> Round-robin starts with a 679ms cold start, then stabilizes at ~150ms after pod warmup. Cache-aware stays at 65-73ms throughout--  40% reduction at step 12.</div>
         </div>
 
         <div class="chart-panel" id="panel-agentic8">
@@ -183,7 +183,7 @@
             <p class="chart-description">A realistic tool-calling agent workflow. TTFT diverges from the very first step as cache-aware routing reuses the system prompt cache.</p>
           </div>
           <div class="chart-container"><canvas id="chart-agentic8"></canvas></div>
-          <div class="chart-insight"><strong>Key insight:</strong> By step 4, round-robin is 3.1x slower (135ms vs 43ms). Each agent step builds on all prior context &mdash; cache-aware routing avoids re-prefilling it.</div>
+          <div class="chart-insight"><strong>Key insight:</strong> By step 4, round-robin is 3.1x slower (135ms vs 43ms). Each agent step builds on all prior context--  cache-aware routing avoids re-prefilling it.</div>
         </div>
 
         <div class="chart-panel" id="panel-multiturn">
@@ -237,12 +237,12 @@
         <div class="explanation-card reveal reveal-delay-1">
           <div class="step-number">1</div>
           <h3>The Prefill Problem</h3>
-          <p>Every LLM request starts with <strong>prefill</strong> &mdash; processing the entire input context before generating the first output token. Prefill time scales linearly: 88ms at 500 tokens, 3.7 seconds at 32K tokens.</p>
+          <p>Every LLM request starts with <strong>prefill</strong>--  processing the entire input context before generating the first output token. Prefill time scales linearly: 88ms at 500 tokens, 3.7 seconds at 32K tokens.</p>
         </div>
         <div class="explanation-card reveal reveal-delay-2">
           <div class="step-number">2</div>
           <h3>Prefix Caching</h3>
-          <p>vLLM stores computed KV blocks in GPU memory. A <strong>cache hit skips prefill entirely</strong>, producing constant ~35-44ms TTFT regardless of context length &mdash; but only if the request reaches the right pod.</p>
+          <p>vLLM stores computed KV blocks in GPU memory. A <strong>cache hit skips prefill entirely</strong>, producing constant ~35-44ms TTFT regardless of context length--  but only if the request reaches the right pod.</p>
         </div>
         <div class="explanation-card reveal reveal-delay-3">
           <div class="step-number">3</div>
@@ -295,11 +295,11 @@
       <div class="methodology-content">
         <div class="method-item reveal reveal-delay-1">
           <h3>Measurement</h3>
-          <p>In-pod measurement via direct HTTPS + streaming SSE. TTFT captured with <code>time.perf_counter()</code> from first byte of the SSE stream. Zero network overhead &mdash; the benchmark client runs inside the cluster.</p>
+          <p>In-pod measurement via direct HTTPS + streaming SSE. TTFT captured with <code>time.perf_counter()</code> from first byte of the SSE stream. Zero network overhead--  the benchmark client runs inside the cluster.</p>
         </div>
         <div class="method-item reveal reveal-delay-2">
           <h3>Routing Comparison</h3>
-          <p><strong>Round-robin:</strong> Standard Kubernetes Service load balancing &mdash; requests distributed evenly across pods. <strong>Cache-aware:</strong> llm-d EPP routing &mdash; requests routed to the pod with the best KV-cache match for that prompt's prefix.</p>
+          <p><strong>Round-robin:</strong> Standard Kubernetes Service load balancing--  requests distributed evenly across pods. <strong>Cache-aware:</strong> llm-d EPP routing--  requests routed to the pod with the best KV-cache match for that prompt's prefix.</p>
         </div>
         <div class="method-item reveal reveal-delay-3">
           <h3>Benchmark Suite</h3>
@@ -318,7 +318,7 @@
           <a href="https://redhat.com/en/blog/what-llm-d-and-why-do-we-need-it" target="_blank" rel="noopener">What is llm-d?</a>
           <a href="https://github.com/markellr-redhat/llm-d-benchmark" target="_blank" rel="noopener">Benchmark Source</a>
         </div>
-        <p class="footer-author">Benchmark by <strong>Markell Rawls</strong> &mdash; Developer Advocate, Red Hat</p>
+        <p class="footer-author">Benchmark by <strong>Markell Rawls</strong>--  Developer Advocate, Red Hat</p>
         <p class="footer-meta">Meta Llama 3.1 70B Instruct &middot; 3x NVIDIA H200 &middot; Red Hat OpenShift 4.21 &middot; llm-d (CNCF Sandbox)</p>
       </div>
     </div>

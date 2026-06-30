@@ -1,5 +1,5 @@
 /* ============================================
-   llm-d Benchmark — Charts, Animations & Interactivity
+   llm-d Benchmark: Charts, Animations & Interactivity
    ============================================ */
 
 (function () {
