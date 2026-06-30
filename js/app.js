@@ -40,8 +40,9 @@
   Chart.defaults.plugins.tooltip.displayColors = true;
   Chart.defaults.plugins.tooltip.boxPadding = 4;
   Chart.defaults.plugins.tooltip.titleFont = { weight: 'bold', family: "'Red Hat Display', sans-serif" };
-  Chart.defaults.plugins.legend.labels.usePointStyle = true;
-  Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+  Chart.defaults.plugins.legend.labels.usePointStyle = false;
+  Chart.defaults.plugins.legend.labels.boxWidth = 14;
+  Chart.defaults.plugins.legend.labels.boxHeight = 4;
   Chart.defaults.plugins.legend.labels.padding = 20;
   Chart.defaults.plugins.legend.labels.font = { family: "'Red Hat Display', sans-serif", weight: '600' };
 
