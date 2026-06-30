@@ -1,5 +1,6 @@
 /* ============================================
    llm-d Benchmark: Charts, Animations & Interactivity
+   Warm Storytelling Edition
    ============================================ */
 
 (function () {
@@ -8,43 +9,43 @@
   // ---- Benchmark data (inlined to work on file:// protocol) ----
   var DATA = {"metadata":{"title":"llm-d KV-Cache-Aware Routing Benchmark","author":"Markell Rawls","date":"2026-06-23","model":"Meta Llama 3.1 70B Instruct (FP8-dynamic, RedHatAI)","hardware":"3x NVIDIA H200 141GB HBM3e GPUs on single node","platform":"Red Hat OpenShift 4.21.11 with llm-d (CNCF Sandbox)"},"charts":{"full_scaling_curve":{"series":{"cold_start_no_cache":[{"x":500,"y":87.89},{"x":1000,"y":109.55},{"x":2000,"y":218.57},{"x":4000,"y":369.34},{"x":8000,"y":758.26},{"x":12000,"y":1269.55},{"x":16000,"y":1636.96},{"x":24000,"y":2692.05},{"x":32000,"y":3742.47}],"cache_hit":[{"x":500,"y":32.66},{"x":1000,"y":33.06},{"x":2000,"y":35.75},{"x":4000,"y":37.9},{"x":8000,"y":43.95},{"x":12000,"y":49.06},{"x":16000,"y":55.34},{"x":24000,"y":65.84},{"x":32000,"y":78.87}]}},"context_scaling_curve":{"series":{"cold_start":[{"x":500,"y":87.89},{"x":1000,"y":109.55},{"x":2000,"y":218.57},{"x":4000,"y":369.34},{"x":8000,"y":758.26},{"x":12000,"y":1269.55},{"x":16000,"y":1636.96},{"x":24000,"y":2692.05},{"x":32000,"y":3742.47}],"cache_hit":[{"x":500,"y":32.66},{"x":1000,"y":33.06},{"x":2000,"y":35.75},{"x":4000,"y":37.9},{"x":8000,"y":43.95},{"x":12000,"y":49.06},{"x":16000,"y":55.34},{"x":24000,"y":65.84},{"x":32000,"y":78.87}]}},"speedup_bar_chart":{"bars":[{"label":"500","value":2.69},{"label":"1K","value":3.31},{"label":"2K","value":6.11},{"label":"4K","value":9.75},{"label":"8K","value":17.25},{"label":"12K","value":25.88},{"label":"16K","value":29.58},{"label":"24K","value":40.89},{"label":"32K","value":47.45}]},"concurrent_per_turn":{"series":{"round_robin":[{"x":1,"y":178.87},{"x":2,"y":253.77},{"x":3,"y":247.99},{"x":4,"y":189.71},{"x":5,"y":230.32}],"cache_aware":[{"x":1,"y":51.66},{"x":2,"y":52.71},{"x":3,"y":54.55},{"x":4,"y":57.95},{"x":5,"y":60.81}]}},"warmup_curve":{"series":{"round_robin":[{"x":1,"y":235.17},{"x":2,"y":238.29},{"x":3,"y":235.41},{"x":4,"y":42.31},{"x":5,"y":41.57},{"x":6,"y":43.43},{"x":7,"y":42.39},{"x":8,"y":43.36},{"x":9,"y":42.44},{"x":10,"y":42.13},{"x":11,"y":42.46},{"x":12,"y":43.36},{"x":13,"y":41.59},{"x":14,"y":42.25},{"x":15,"y":41.44},{"x":16,"y":42.06},{"x":17,"y":42.9},{"x":18,"y":41.92},{"x":19,"y":41.87},{"x":20,"y":42.27}],"cache_aware":[{"x":1,"y":37.95},{"x":2,"y":41.27},{"x":3,"y":34.62},{"x":4,"y":36.25},{"x":5,"y":40.79},{"x":6,"y":35.8},{"x":7,"y":35.68},{"x":8,"y":41.8},{"x":9,"y":36.09},{"x":10,"y":35.02},{"x":11,"y":35.3},{"x":12,"y":35.43},{"x":13,"y":35.76},{"x":14,"y":35.19},{"x":15,"y":34.97},{"x":16,"y":35.22},{"x":17,"y":35.0},{"x":18,"y":34.79},{"x":19,"y":35.12},{"x":20,"y":34.72}]}},"agentic_chain_12step":{"series":{"round_robin":[{"x":1,"y":678.93,"context_tokens":7295},{"x":2,"y":730.44,"context_tokens":7550},{"x":3,"y":748.37,"context_tokens":7801},{"x":4,"y":148.57,"context_tokens":8061},{"x":5,"y":152.84,"context_tokens":8313},{"x":6,"y":152.18,"context_tokens":8600},{"x":7,"y":152.23,"context_tokens":8875},{"x":8,"y":150.1,"context_tokens":9154},{"x":9,"y":141.87,"context_tokens":9404},{"x":10,"y":147.43,"context_tokens":9730},{"x":11,"y":143.13,"context_tokens":10003},{"x":12,"y":143.79,"context_tokens":10300}],"cache_aware":[{"x":1,"y":43.86,"context_tokens":7294},{"x":2,"y":68.93,"context_tokens":7549},{"x":3,"y":71.59,"context_tokens":7800},{"x":4,"y":71.04,"context_tokens":8059},{"x":5,"y":71.37,"context_tokens":8310},{"x":6,"y":73.13,"context_tokens":8598},{"x":7,"y":65.8,"context_tokens":8873},{"x":8,"y":67.97,"context_tokens":9151},{"x":9,"y":67.02,"context_tokens":9413},{"x":10,"y":72.57,"context_tokens":9736},{"x":11,"y":122.03,"context_tokens":10013},{"x":12,"y":66.41,"context_tokens":10305}]}},"agentic_chain_8step_original":{"series":{"round_robin":[{"x":1,"y":41.63,"context_tokens":2646},{"x":2,"y":79.64,"context_tokens":2914},{"x":3,"y":84.17,"context_tokens":3156},{"x":4,"y":135.43,"context_tokens":3414},{"x":5,"y":138.63,"context_tokens":3646},{"x":6,"y":137.9,"context_tokens":3891},{"x":7,"y":137.76,"context_tokens":4150},{"x":8,"y":144.8,"context_tokens":4421}],"cache_aware":[{"x":1,"y":38.92,"context_tokens":2646},{"x":2,"y":52.44,"context_tokens":2914},{"x":3,"y":64.34,"context_tokens":3156},{"x":4,"y":43.35,"context_tokens":3414},{"x":5,"y":42.67,"context_tokens":3646},{"x":6,"y":44.2,"context_tokens":3891},{"x":7,"y":55.41,"context_tokens":4150},{"x":8,"y":57.42,"context_tokens":4421}]}},"multi_turn_conversation":{"series":{"round_robin":[{"x":1,"y":42.93},{"x":2,"y":64.75},{"x":3,"y":56.83},{"x":4,"y":52.59},{"x":5,"y":53.6},{"x":6,"y":55.34},{"x":7,"y":54.36},{"x":8,"y":57.24},{"x":9,"y":56.47},{"x":10,"y":55.5}],"cache_aware":[{"x":1,"y":39.02},{"x":2,"y":40.17},{"x":3,"y":42.99},{"x":4,"y":48.17},{"x":5,"y":42.88},{"x":6,"y":41.76},{"x":7,"y":50.74},{"x":8,"y":50.35},{"x":9,"y":48.0},{"x":10,"y":47.38}]}},"fleet_warmup_projection":{"series":{"round_robin_8k":[{"x":3,"y":2.27},{"x":10,"y":7.58},{"x":25,"y":18.96},{"x":50,"y":37.91},{"x":100,"y":75.83},{"x":200,"y":151.65}],"cache_aware_8k":[{"x":3,"y":0.76},{"x":10,"y":0.76},{"x":25,"y":0.76},{"x":50,"y":0.76},{"x":100,"y":0.76},{"x":200,"y":0.76}],"round_robin_32k":[{"x":3,"y":11.23},{"x":10,"y":37.42},{"x":25,"y":93.56},{"x":50,"y":187.12},{"x":100,"y":374.25},{"x":200,"y":748.49}],"cache_aware_32k":[{"x":3,"y":3.74},{"x":10,"y":3.74},{"x":25,"y":3.74},{"x":50,"y":3.74},{"x":100,"y":3.74},{"x":200,"y":3.74}]}}}};
 
-  // ---- Color palette (light theme) ----
+  // ---- Warm color palette ----
   var COLORS = {
-    rr: '#e53e3e',
-    rrDim: 'rgba(229, 62, 62, 0.08)',
-    ca: '#38a169',
-    caDim: 'rgba(56, 161, 105, 0.08)',
-    cold: '#dd6b20',
-    coldDim: 'rgba(221, 107, 32, 0.08)',
-    accent: '#3182ce',
-    accentDim: 'rgba(49, 130, 206, 0.08)',
-    textPrimary: '#1a202c',
-    textSecondary: '#4a5568',
-    textMuted: '#718096',
-    gridLine: 'rgba(0, 0, 0, 0.06)',
+    rr: '#d4574e',
+    rrDim: 'rgba(212, 87, 78, 0.08)',
+    ca: '#4a90d9',
+    caDim: 'rgba(74, 144, 217, 0.08)',
+    cold: '#c07844',
+    coldDim: 'rgba(192, 120, 68, 0.08)',
+    accent: '#4a90d9',
+    accentDim: 'rgba(74, 144, 217, 0.08)',
+    textPrimary: '#2d2a26',
+    textSecondary: '#5c574f',
+    textMuted: '#8a847b',
+    gridLine: 'rgba(45, 42, 38, 0.06)',
     surface: '#ffffff',
   };
 
   // ---- Chart.js global defaults ----
   Chart.defaults.color = COLORS.textSecondary;
   Chart.defaults.borderColor = COLORS.gridLine;
-  Chart.defaults.font.family = "'Red Hat Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
   Chart.defaults.font.size = 13;
-  Chart.defaults.plugins.tooltip.backgroundColor = '#ffffff';
+  Chart.defaults.plugins.tooltip.backgroundColor = '#fffdf9';
   Chart.defaults.plugins.tooltip.titleColor = COLORS.textPrimary;
   Chart.defaults.plugins.tooltip.bodyColor = COLORS.textSecondary;
-  Chart.defaults.plugins.tooltip.borderColor = '#e2e8f0';
+  Chart.defaults.plugins.tooltip.borderColor = '#e8e4df';
   Chart.defaults.plugins.tooltip.borderWidth = 1;
   Chart.defaults.plugins.tooltip.cornerRadius = 10;
   Chart.defaults.plugins.tooltip.padding = 14;
   Chart.defaults.plugins.tooltip.displayColors = true;
   Chart.defaults.plugins.tooltip.boxPadding = 4;
-  Chart.defaults.plugins.tooltip.titleFont = { weight: 'bold', family: "'Red Hat Display', sans-serif" };
+  Chart.defaults.plugins.tooltip.titleFont = { weight: 'bold', family: "'Inter', sans-serif" };
   Chart.defaults.plugins.legend.labels.usePointStyle = false;
   Chart.defaults.plugins.legend.labels.boxWidth = 14;
   Chart.defaults.plugins.legend.labels.boxHeight = 4;
   Chart.defaults.plugins.legend.labels.padding = 20;
-  Chart.defaults.plugins.legend.labels.font = { family: "'Red Hat Display', sans-serif", weight: '600' };
+  Chart.defaults.plugins.legend.labels.font = { family: "'Inter', sans-serif", weight: '600' };
 
   // ---- Chart instances ----
   var charts = {};
@@ -57,12 +58,12 @@
   function baseScaleOptions(xLabel, yLabel, opts) {
     var result = {
       x: {
-        title: { display: true, text: xLabel, color: COLORS.textSecondary, font: { weight: '700', family: "'Red Hat Display', sans-serif" } },
+        title: { display: true, text: xLabel, color: COLORS.textSecondary, font: { weight: '700', family: "'Inter', sans-serif" } },
         grid: { color: COLORS.gridLine, drawBorder: false },
         ticks: { color: COLORS.textSecondary },
       },
       y: {
-        title: { display: true, text: yLabel, color: COLORS.textSecondary, font: { weight: '700', family: "'Red Hat Display', sans-serif" } },
+        title: { display: true, text: yLabel, color: COLORS.textSecondary, font: { weight: '700', family: "'Inter', sans-serif" } },
         grid: { color: COLORS.gridLine, drawBorder: false },
         ticks: { color: COLORS.textSecondary },
         beginAtZero: true,
@@ -73,9 +74,9 @@
     return result;
   }
 
-  // ---- Tab switching ----
+  // ---- Tab switching (updated for chart-btn class) ----
   function initTabs() {
-    var tabs = document.querySelectorAll('.chart-tab');
+    var tabs = document.querySelectorAll('.chart-btn');
     tabs.forEach(function (tab) {
       tab.addEventListener('click', function () {
         tabs.forEach(function (t) {
@@ -261,14 +262,14 @@
           data: bars.map(function (b) { return b.value; }),
           backgroundColor: bars.map(function (b) {
             var ratio = Math.min(b.value / 50, 1);
-            var r = Math.round(56 + (49 - 56) * ratio);
-            var g = Math.round(161 + (130 - 161) * ratio);
-            var bVal = Math.round(105 + (206 - 105) * ratio);
-            return 'rgba(' + r + ',' + g + ',' + bVal + ',' + (0.6 + 0.3 * ratio) + ')';
+            var r = Math.round(74 + (58 - 74) * ratio);
+            var g = Math.round(144 + (123 - 144) * ratio);
+            var bVal = Math.round(217 + (200 - 217) * ratio);
+            return 'rgba(' + r + ',' + g + ',' + bVal + ',' + (0.55 + 0.35 * ratio) + ')';
           }),
           borderColor: bars.map(function (b) {
             var ratio = Math.min(b.value / 50, 1);
-            return ratio > 0.5 ? COLORS.accent : COLORS.ca;
+            return ratio > 0.5 ? '#3a7bc8' : COLORS.ca;
           }),
           borderWidth: 1.5,
           borderRadius: 6,

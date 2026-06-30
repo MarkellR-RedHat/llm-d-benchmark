@@ -10,11 +10,17 @@
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
+
+  <!-- Floating background orbs -->
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+
   <!-- Scroll Progress Bar -->
   <div class="scroll-progress"></div>
 
@@ -39,7 +45,6 @@
 
   <!-- Hero Section -->
   <section class="hero">
-    <div class="hero-orb-accent"></div>
     <div class="container">
       <div class="hero-headline reveal">
         <span class="hero-number">47.5x</span>
@@ -73,10 +78,18 @@
     </div>
   </section>
 
-  <!-- Test Environment -->
-  <section class="environment">
+  <!-- Chapter 1: The Test -->
+  <section class="chapter" id="chapter-test">
     <div class="container">
-      <h2 class="reveal">Test Environment</h2>
+      <div class="chapter-marker reveal">
+        <span class="chapter-number">Chapter One</span>
+        <h2 class="chapter-title">The Test</h2>
+      </div>
+      <p class="chapter-intro reveal reveal-delay-1">
+        We set up a real-world benchmark to answer one question: how much faster is cache-aware routing?
+        The setup was straightforward -- three NVIDIA H200 GPUs, Meta's Llama 3.1 70B model, and two routing strategies
+        going head-to-head across eight different workload patterns.
+      </p>
       <div class="env-grid">
         <div class="env-item reveal reveal-delay-1">
           <div class="env-icon">
@@ -111,94 +124,138 @@
           <div class="env-detail">In-pod, zero network overhead</div>
         </div>
       </div>
+      <div class="methodology-content reveal">
+        <div class="method-item">
+          <h3>Measurement</h3>
+          <p>In-pod measurement via direct HTTPS + streaming SSE. TTFT captured with <code>time.perf_counter()</code> from first byte of the SSE stream. Zero network overhead -- the benchmark client runs inside the cluster.</p>
+        </div>
+        <div class="method-item">
+          <h3>Routing Comparison</h3>
+          <p><strong>Round-robin:</strong> Standard Kubernetes Service load balancing -- requests distributed evenly across pods. <strong>Cache-aware:</strong> llm-d EPP routing -- requests routed to the pod with the best KV-cache match for that prompt's prefix.</p>
+        </div>
+        <div class="method-item">
+          <h3>Benchmark Suite</h3>
+          <p>Eight tests covering context scaling (500-32K tokens), concurrent load (10 sessions), cache warmup curves, agentic chains (8 and 12 steps), multi-turn conversations, and fleet scaling projections.</p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Charts Section -->
-  <section class="charts">
+  <!-- Chapter 2: The Results -->
+  <section class="chapter" id="chapter-results">
     <div class="container">
-      <h2 class="reveal">Benchmark Results</h2>
-      <p class="section-description reveal">Eight benchmark tests measuring TTFT (time-to-first-token) across different real-world scenarios. Click any tab to explore.</p>
+      <div class="chapter-marker reveal">
+        <span class="chapter-number">Chapter Two</span>
+        <h2 class="chapter-title">The Results</h2>
+      </div>
+      <p class="chapter-intro reveal reveal-delay-1">
+        Eight benchmark tests measuring TTFT (time-to-first-token) across different real-world scenarios.
+        Select any chart below to explore the data.
+      </p>
 
-      <nav class="chart-tabs reveal" role="tablist" aria-label="Benchmark charts">
-        <button class="chart-tab active" role="tab" aria-selected="true" data-chart="scaling">Context Scaling</button>
-        <button class="chart-tab" role="tab" aria-selected="false" data-chart="speedup">Speedup Factor</button>
-        <button class="chart-tab" role="tab" aria-selected="false" data-chart="concurrent">Concurrent Load</button>
-        <button class="chart-tab" role="tab" aria-selected="false" data-chart="warmup">Cache Warmup</button>
-        <button class="chart-tab" role="tab" aria-selected="false" data-chart="agentic12">Agentic Chain (12-step)</button>
-        <button class="chart-tab" role="tab" aria-selected="false" data-chart="agentic8">Tool-Calling (8-step)</button>
-        <button class="chart-tab" role="tab" aria-selected="false" data-chart="multiturn">Multi-Turn Chat</button>
-        <button class="chart-tab" role="tab" aria-selected="false" data-chart="fleet">Fleet Scaling</button>
-      </nav>
+      <div class="chart-selector reveal">
+        <button class="chart-btn active" data-chart="scaling">
+          <span class="chart-btn-title">Context Scaling</span>
+          <span class="chart-btn-sub">500 - 32K tokens</span>
+        </button>
+        <button class="chart-btn" data-chart="speedup">
+          <span class="chart-btn-title">Speedup Factor</span>
+          <span class="chart-btn-sub">By context length</span>
+        </button>
+        <button class="chart-btn" data-chart="concurrent">
+          <span class="chart-btn-title">Concurrent Load</span>
+          <span class="chart-btn-sub">10 sessions</span>
+        </button>
+        <button class="chart-btn" data-chart="warmup">
+          <span class="chart-btn-title">Cache Warmup</span>
+          <span class="chart-btn-sub">20 requests</span>
+        </button>
+        <button class="chart-btn" data-chart="agentic12">
+          <span class="chart-btn-title">Agentic Chain</span>
+          <span class="chart-btn-sub">12 steps</span>
+        </button>
+        <button class="chart-btn" data-chart="agentic8">
+          <span class="chart-btn-title">Tool-Calling</span>
+          <span class="chart-btn-sub">8 steps</span>
+        </button>
+        <button class="chart-btn" data-chart="multiturn">
+          <span class="chart-btn-title">Multi-Turn Chat</span>
+          <span class="chart-btn-sub">10 turns</span>
+        </button>
+        <button class="chart-btn" data-chart="fleet">
+          <span class="chart-btn-title">Fleet Scaling</span>
+          <span class="chart-btn-sub">3 - 200 pods</span>
+        </button>
+      </div>
 
       <div class="chart-panels">
         <div class="chart-panel active" id="panel-scaling">
-          <div class="chart-header">
+          <div class="chart-narrative">
             <h3>Context Length Scaling (500 - 32K tokens)</h3>
-            <p class="chart-description">TTFT grows linearly with context length for cold starts (88ms to 3.7s), while cache hits stay nearly flat (33ms to 79ms). The widening gap is the value of cache-aware routing.</p>
+            <p>We started by measuring the fundamental relationship: how does response time change as prompts get longer? TTFT grows linearly with context length for cold starts (88ms to 3.7s), while cache hits stay nearly flat (33ms to 79ms). The widening gap is the value of cache-aware routing.</p>
           </div>
           <div class="chart-container"><canvas id="chart-scaling"></canvas></div>
-          <div class="chart-insight"><strong>Key insight:</strong> At 32K tokens, cold-start TTFT is 3,742ms vs 79ms with a cache hit--  a 47.5x speedup. The advantage compounds as context windows grow.</div>
+          <div class="chart-insight"><strong>Key insight:</strong> At 32K tokens, cold-start TTFT is 3,742ms vs 79ms with a cache hit -- a 47.5x speedup. The advantage compounds as context windows grow.</div>
         </div>
 
         <div class="chart-panel" id="panel-speedup">
-          <div class="chart-header">
+          <div class="chart-narrative">
             <h3>Speedup Factor by Context Length</h3>
-            <p class="chart-description">How many times faster cache-aware routing is at each context length. The advantage scales nearly linearly--  longer contexts mean bigger wins.</p>
+            <p>Taking those same numbers, we calculated the raw speedup at each context length. The advantage scales nearly linearly -- longer contexts mean bigger wins.</p>
           </div>
           <div class="chart-container"><canvas id="chart-speedup"></canvas></div>
-          <div class="chart-insight"><strong>Key insight:</strong> Even at just 500 tokens, cache-aware routing is 2.7x faster. At 32K tokens, it reaches 47.5x--  and context windows keep growing.</div>
+          <div class="chart-insight"><strong>Key insight:</strong> Even at just 500 tokens, cache-aware routing is 2.7x faster. At 32K tokens, it reaches 47.5x -- and context windows keep growing.</div>
         </div>
 
         <div class="chart-panel" id="panel-concurrent">
-          <div class="chart-header">
+          <div class="chart-narrative">
             <h3>Concurrent Load (10 sessions x 5 turns)</h3>
-            <p class="chart-description">TTFT per conversation turn under concurrent load. Cache-aware routing maintains flat, predictable latency while round-robin oscillates wildly.</p>
+            <p>A single user is one thing. What happens when 10 users show up at once? Cache-aware routing maintains flat, predictable latency while round-robin oscillates wildly.</p>
           </div>
           <div class="chart-container"><canvas id="chart-concurrent"></canvas></div>
           <div class="chart-insight"><strong>Key insight:</strong> Under production-like concurrency, cache-aware TTFT stays flat at 52-61ms while round-robin swings between 179-254ms. P95: 73ms vs 288ms.</div>
         </div>
 
         <div class="chart-panel" id="panel-warmup">
-          <div class="chart-header">
+          <div class="chart-narrative">
             <h3>Cache Warmup Curve (20 sequential requests)</h3>
-            <p class="chart-description">How quickly each routing strategy reaches peak cache efficiency. Cache-aware converges immediately; round-robin needs one cold start per pod.</p>
+            <p>How quickly does each routing strategy reach peak performance? Cache-aware converges immediately; round-robin needs one cold start per pod.</p>
           </div>
           <div class="chart-container"><canvas id="chart-warmup"></canvas></div>
           <div class="chart-insight"><strong>Key insight:</strong> Round-robin needs 3 cold starts (one per pod) before converging. With 100 pods in production, that becomes 100 cold starts. Cache-aware routing: always 1.</div>
         </div>
 
         <div class="chart-panel" id="panel-agentic12">
-          <div class="chart-header">
+          <div class="chart-narrative">
             <h3>Extended Agentic Chain (12 steps, 7K-10K tokens)</h3>
-            <p class="chart-description">TTFT at each step of a 12-step agent workflow with a 7K-token document. Context grows with each step, making cache reuse increasingly valuable.</p>
+            <p>AI agents chain 12 reasoning steps, each building on all prior context. Context grows with each step, making cache reuse increasingly valuable.</p>
           </div>
           <div class="chart-container"><canvas id="chart-agentic12"></canvas></div>
-          <div class="chart-insight"><strong>Key insight:</strong> Round-robin starts with a 679ms cold start, then stabilizes at ~150ms after pod warmup. Cache-aware stays at 65-73ms throughout--  40% reduction at step 12.</div>
+          <div class="chart-insight"><strong>Key insight:</strong> Round-robin starts with a 679ms cold start, then stabilizes at ~150ms after pod warmup. Cache-aware stays at 65-73ms throughout -- 40% reduction at step 12.</div>
         </div>
 
         <div class="chart-panel" id="panel-agentic8">
-          <div class="chart-header">
+          <div class="chart-narrative">
             <h3>Agentic Tool-Calling Chain (8 steps, 2.3K-4.4K tokens)</h3>
-            <p class="chart-description">A realistic tool-calling agent workflow. TTFT diverges from the very first step as cache-aware routing reuses the system prompt cache.</p>
+            <p>A realistic tool-calling workflow where each step adds to the conversation. TTFT diverges from the very first step as cache-aware routing reuses the system prompt cache.</p>
           </div>
           <div class="chart-container"><canvas id="chart-agentic8"></canvas></div>
-          <div class="chart-insight"><strong>Key insight:</strong> By step 4, round-robin is 3.1x slower (135ms vs 43ms). Each agent step builds on all prior context--  cache-aware routing avoids re-prefilling it.</div>
+          <div class="chart-insight"><strong>Key insight:</strong> By step 4, round-robin is 3.1x slower (135ms vs 43ms). Each agent step builds on all prior context -- cache-aware routing avoids re-prefilling it.</div>
         </div>
 
         <div class="chart-panel" id="panel-multiturn">
-          <div class="chart-header">
+          <div class="chart-narrative">
             <h3>Multi-Turn Conversations (10 turns, 3 conversations)</h3>
-            <p class="chart-description">Median TTFT across 3 independent 10-turn conversations. Round-robin consistently runs 20-40% slower as it scatters turns across pods.</p>
+            <p>The most common pattern: back-and-forth conversation over 10 turns. Median TTFT across 3 independent conversations. Round-robin consistently runs 20-40% slower as it scatters turns across pods.</p>
           </div>
           <div class="chart-container"><canvas id="chart-multiturn"></canvas></div>
           <div class="chart-insight"><strong>Key insight:</strong> With just 3 pods, the difference is moderate (20-40%). At production scale (50-100 pods), round-robin rarely hits the same pod twice, widening the gap dramatically.</div>
         </div>
 
         <div class="chart-panel" id="panel-fleet">
-          <div class="chart-header">
+          <div class="chart-narrative">
             <h3>Fleet Warmup Projection</h3>
-            <p class="chart-description">Projected total warmup time by fleet size. Round-robin warmup scales linearly with pod count; cache-aware stays constant regardless of fleet size.</p>
+            <p>What happens when you scale from 3 pods to 200? Round-robin warmup scales linearly with pod count; cache-aware stays constant regardless of fleet size.</p>
           </div>
           <div class="chart-container"><canvas id="chart-fleet"></canvas></div>
           <div class="chart-insight"><strong>Key insight:</strong> At 100 pods with 32K context: round-robin needs 374 seconds (6.2 minutes) of warmup. Cache-aware: 3.7 seconds. The gap is O(N) vs O(1).</div>
@@ -229,39 +286,17 @@
     </div>
   </section>
 
-  <!-- How It Works -->
-  <section class="how-it-works">
+  <!-- Chapter 3: Why It Matters -->
+  <section class="chapter" id="chapter-findings">
     <div class="container">
-      <h2 class="reveal">How Cache-Aware Routing Works</h2>
-      <div class="explanation-grid">
-        <div class="explanation-card reveal reveal-delay-1">
-          <div class="step-number">1</div>
-          <h3>The Prefill Problem</h3>
-          <p>Every LLM request starts with <strong>prefill</strong>--  processing the entire input context before generating the first output token. Prefill time scales linearly: 88ms at 500 tokens, 3.7 seconds at 32K tokens.</p>
-        </div>
-        <div class="explanation-card reveal reveal-delay-2">
-          <div class="step-number">2</div>
-          <h3>Prefix Caching</h3>
-          <p>vLLM stores computed KV blocks in GPU memory. A <strong>cache hit skips prefill entirely</strong>, producing constant ~35-44ms TTFT regardless of context length--  but only if the request reaches the right pod.</p>
-        </div>
-        <div class="explanation-card reveal reveal-delay-3">
-          <div class="step-number">3</div>
-          <h3>Round-Robin Scatters</h3>
-          <p>Standard Kubernetes load balancing distributes requests randomly. Each pod must <strong>re-compute prefill</strong> for prompts it hasn't seen. With 100 pods, 99% of requests are cache misses.</p>
-        </div>
-        <div class="explanation-card reveal reveal-delay-4">
-          <div class="step-number">4</div>
-          <h3>llm-d Routes Smart</h3>
-          <p>llm-d's Endpoint Picker (EPP) routes each request to <strong>the pod with the best KV-cache match</strong>, turning every request into a cache hit. Warmup is O(1) instead of O(N pods).</p>
-        </div>
+      <div class="chapter-marker reveal">
+        <span class="chapter-number">Chapter Three</span>
+        <h2 class="chapter-title">Why It Matters</h2>
       </div>
-    </div>
-  </section>
-
-  <!-- Honest Findings -->
-  <section class="honest-findings">
-    <div class="container">
-      <h2 class="reveal">Honest Findings</h2>
+      <p class="chapter-intro reveal reveal-delay-1">
+        No benchmark tells the whole story. Here is an honest look at where cache-aware routing
+        delivers its biggest wins -- and where the advantage is smaller.
+      </p>
       <div class="findings-grid">
         <div class="finding-card finding-positive reveal reveal-delay-1">
           <h3>Where It Helps Most</h3>
@@ -288,22 +323,37 @@
     </div>
   </section>
 
-  <!-- Methodology -->
-  <section class="methodology">
+  <!-- Chapter 4: How It Works -->
+  <section class="chapter" id="chapter-how">
     <div class="container">
-      <h2 class="reveal">Methodology</h2>
-      <div class="methodology-content">
-        <div class="method-item reveal reveal-delay-1">
-          <h3>Measurement</h3>
-          <p>In-pod measurement via direct HTTPS + streaming SSE. TTFT captured with <code>time.perf_counter()</code> from first byte of the SSE stream. Zero network overhead--  the benchmark client runs inside the cluster.</p>
+      <div class="chapter-marker reveal">
+        <span class="chapter-number">Chapter Four</span>
+        <h2 class="chapter-title">How It Works</h2>
+      </div>
+      <p class="chapter-intro reveal reveal-delay-1">
+        The mechanism behind the numbers. Four steps explain why cache-aware routing
+        delivers such dramatic improvements in time-to-first-token.
+      </p>
+      <div class="explanation-grid">
+        <div class="explanation-card reveal reveal-delay-1">
+          <div class="step-number">1</div>
+          <h3>The Prefill Problem</h3>
+          <p>Every LLM request starts with <strong>prefill</strong> -- processing the entire input context before generating the first output token. Prefill time scales linearly: 88ms at 500 tokens, 3.7 seconds at 32K tokens.</p>
         </div>
-        <div class="method-item reveal reveal-delay-2">
-          <h3>Routing Comparison</h3>
-          <p><strong>Round-robin:</strong> Standard Kubernetes Service load balancing--  requests distributed evenly across pods. <strong>Cache-aware:</strong> llm-d EPP routing--  requests routed to the pod with the best KV-cache match for that prompt's prefix.</p>
+        <div class="explanation-card reveal reveal-delay-2">
+          <div class="step-number">2</div>
+          <h3>Prefix Caching</h3>
+          <p>vLLM stores computed KV blocks in GPU memory. A <strong>cache hit skips prefill entirely</strong>, producing constant ~35-44ms TTFT regardless of context length -- but only if the request reaches the right pod.</p>
         </div>
-        <div class="method-item reveal reveal-delay-3">
-          <h3>Benchmark Suite</h3>
-          <p>Eight tests covering context scaling (500-32K tokens), concurrent load (10 sessions), cache warmup curves, agentic chains (8 and 12 steps), multi-turn conversations, and fleet scaling projections.</p>
+        <div class="explanation-card reveal reveal-delay-3">
+          <div class="step-number">3</div>
+          <h3>Round-Robin Scatters</h3>
+          <p>Standard Kubernetes load balancing distributes requests randomly. Each pod must <strong>re-compute prefill</strong> for prompts it hasn't seen. With 100 pods, 99% of requests are cache misses.</p>
+        </div>
+        <div class="explanation-card reveal reveal-delay-4">
+          <div class="step-number">4</div>
+          <h3>llm-d Routes Smart</h3>
+          <p>llm-d's Endpoint Picker (EPP) routes each request to <strong>the pod with the best KV-cache match</strong>, turning every request into a cache hit. Warmup is O(1) instead of O(N pods).</p>
         </div>
       </div>
     </div>
@@ -318,7 +368,7 @@
           <a href="https://redhat.com/en/blog/what-llm-d-and-why-do-we-need-it" target="_blank" rel="noopener">What is llm-d?</a>
           <a href="https://github.com/markellr-redhat/llm-d-benchmark" target="_blank" rel="noopener">Benchmark Source</a>
         </div>
-        <p class="footer-author">Benchmark by <strong>Markell Rawls</strong>--  Developer Advocate, Red Hat</p>
+        <p class="footer-author">Benchmark by <strong>Markell Rawls</strong> -- Developer Advocate, Red Hat</p>
         <p class="footer-meta">Meta Llama 3.1 70B Instruct &middot; 3x NVIDIA H200 &middot; Red Hat OpenShift 4.21 &middot; llm-d (CNCF Sandbox)</p>
       </div>
     </div>
